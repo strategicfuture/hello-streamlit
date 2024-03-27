@@ -6,33 +6,65 @@ import streamlit as st
 from sklearn.cluster import KMeans
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
-# Example assuming 3 competitors and 10 variables for simplicity
-num_competitors = 3
-num_variables = 10
+# Function to find the optimal number of clusters using the elbow method
+def find_optimal_clusters(data):
+    inertias = []
+    K_range = range(1, min(len(data), 11))  # Assuming a max of 10 clusters
 
-# Create empty DataFrame to hold user input
-data = pd.DataFrame(columns=[f'Variable_{i+1}' for i in range(num_variables)])
+    for k in K_range:
+        kmeans = KMeans(n_clusters=k, init='k-means++', random_state=42)
+        kmeans.fit(data)
+        inertias.append(kmeans.inertia_)
 
-# Input fields for competitor names
-competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
-
-# Input fields for scores of each variable for each competitor
-for i, name in enumerate(competitor_names):
-    if name:  # Proceed only if a name has been entered
-        scores = [st.number_input(f'Enter score for {name} - Variable {j+1}: ', min_value=0.0, max_value=1.0, value=0.5, key=f'{i}_{j}') for j in range(num_variables)]
-        data.loc[name] = scores
-
-# Button to perform k-means clustering
-if st.button('Perform K-Means Clustering'):
-    if not data.empty:
-        # Assuming the number of clusters is known or determined by another method (e.g., silhouette analysis)
-        num_clusters = 2  # Example fixed number of clusters
-        kmeans = KMeans(n_clusters=num_clusters, init='k-means++', random_state=42)
-        cluster_labels = kmeans.fit_predict(data)
-
-        # Display the clustering result
-        for i, name in enumerate(data.index):
-            st.write(f'{name} is in Cluster {cluster_labels[i]+1}')
+    if len(inertias) > 1:
+        deltas = np.diff(inertias)
+        elbow_point = np.argmin(deltas) + 2  # +2 to adjust for the shift caused by np.diff and 0-indexing
     else:
-        st.write("Please enter competitor names and scores to perform clustering.")
+        elbow_point = 1
+
+    return elbow_point
+
+# Function to display the first screen for entering competitor and variable names
+def enter_info():
+    with st.form("competitor_variables"):
+        num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1)
+        competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
+        variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(10)]
+        submitted = st.form_submit_button("Submit")
+
+    if submitted:
+        st.session_state.competitors = competitor_names
+        st.session_state.variables = variables
+        st.session_state.current_screen = 'score_variables'
+
+# Function to display the second screen for scoring variables
+def score_variables():
+    data = pd.DataFrame(columns=st.session_state.variables)
+    with st.form("scoring"):
+        for competitor in st.session_state.competitors:
+            if competitor:  # Proceed only if a name has been entered
+                scores = [st.slider(f'Enter score for {competitor} - {variable}: ', min_value=0.0, max_value=1.0, value=0.5, key=f'{competitor}_{variable}') for variable in st.session_state.variables]
+                data.loc[competitor] = scores
+        submitted = st.form_submit_button("Analyze")
+
+    if submitted and not data.empty:
+        optimal_clusters = find_optimal_clusters(data)
+        kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
+        cluster_labels = kmeans.fit_predict(data)
+        
+        # Display the clustering result
+        st.write(f'Optimal number of clusters determined by elbow method: {optimal_clusters}')
+        for i, competitor in enumerate(data.index):
+            st.write(f'{competitor} is in Cluster {cluster_labels[i]+1}')
+
+# Initialize session state for screen navigation
+if 'current_screen' not in st.session_state:
+    st.session_state.current_screen = 'enter_info'
+
+# Display screens based on the current state
+if st.session_state.current_screen == 'enter_info':
+    enter_info()
+elif st.session_state.current_screen == 'score_variables':
+    score_variables()
