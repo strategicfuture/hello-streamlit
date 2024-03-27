@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib as plt
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 # Initialize session state variables if not already present
 if 'competitors' not in st.session_state:
@@ -73,6 +75,34 @@ def score_variables():
         # Display the clustering result
         for i, competitor in enumerate(scores_df.index):
             st.write(f'{competitor} is in Cluster {cluster_labels[i]+1}')
+
+            plot_choice = st.radio("How would you like to choose axes for plotting?",
+                               ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
+
+        if plot_choice == 'Use PCA to determine axes automatically':
+            pca = PCA(n_components=2)
+            principal_components = pca.fit_transform(scaled_data)
+            fig, ax = plt.subplots()
+            scatter = ax.scatter(principal_components[:, 0], principal_components[:, 1], c=cluster_labels, cmap='viridis')
+
+            # Optional: annotate points with competitor names
+            for i, competitor in enumerate(scores_df.index):
+                ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
+
+            st.pyplot(fig)
+
+        elif plot_choice == 'Manually select variables for axes':
+            variable_options = st.session_state['variables']  # Fetching variable names from session state
+            x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
+            y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
+            fig, ax = plt.subplots()
+            scatter = ax.scatter(scores_df[x_var], scores_df[y_var], c=cluster_labels, cmap='viridis')
+
+            # Optional: annotate points with competitor names
+            for i, competitor in enumerate(scores_df.index):
+                ax.annotate(competitor, (scores_df.at[competitor, x_var], scores_df.at[competitor, y_var]))
+
+            st.pyplot(fig)
 
 # App layout based on current screen
 if st.session_state['current_screen'] == 'enter_info':
