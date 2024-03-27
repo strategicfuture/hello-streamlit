@@ -1,12 +1,16 @@
 import streamlit as st
-
-st.write('Welcome to Streamlit')
-
-import streamlit as st
-from sklearn.cluster import KMeans
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# Initialize session state variables if not already present
+if 'competitors' not in st.session_state:
+    st.session_state['competitors'] = []
+if 'variables' not in st.session_state:
+    st.session_state['variables'] = []
+if 'current_screen' not in st.session_state:
+    st.session_state['current_screen'] = 'enter_info'
 
 # Function to find the optimal number of clusters using the elbow method
 def find_optimal_clusters(data):
@@ -28,43 +32,50 @@ def find_optimal_clusters(data):
 
 # Function to display the first screen for entering competitor and variable names
 def enter_info():
-    with st.form("competitor_variables"):
-        num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1)
-        competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
-        variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(10)]
-        submitted = st.form_submit_button("Submit")
+    num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
+    num_variables = st.number_input('Enter the number of variables:', min_value=1, value=10, step=1, key='num_variables')
+    
+    # Input fields for competitor names
+    competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(int(num_competitors))]
+    st.session_state['competitors'] = competitor_names
+    
+    # Input fields for variable names
+    variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(int(num_variables))]
+    st.session_state['variables'] = variables
 
-    if submitted:
-        st.session_state.competitors = competitor_names
-        st.session_state.variables = variables
-        st.session_state.current_screen = 'score_variables'
+    if st.button('Next to Score Variables'):
+        st.session_state['current_screen'] = 'score_variables'
 
 # Function to display the second screen for scoring variables
 def score_variables():
-    data = pd.DataFrame(columns=st.session_state.variables)
-    with st.form("scoring"):
-        for competitor in st.session_state.competitors:
-            if competitor:  # Proceed only if a name has been entered
-                scores = [st.slider(f'Enter score for {competitor} - {variable}: ', min_value=0.0, max_value=1.0, value=0.5, key=f'{competitor}_{variable}') for variable in st.session_state.variables]
-                data.loc[competitor] = scores
-        submitted = st.form_submit_button("Analyze")
+    # Create a DataFrame to hold the scores
+    scores_df = pd.DataFrame(columns=st.session_state['variables'])
+    
+    # Collect scores for each competitor
+    for competitor in st.session_state['competitors']:
+        if competitor:  # Proceed only if a name has been entered
+            scores = [st.slider(f'Enter score for {competitor} - {variable}: ', min_value=0.0, max_value=1.0, value=0.5, key=f'{competitor}_{variable}') for variable in st.session_state['variables']]
+            scores_df.loc[competitor] = scores
 
-    if submitted and not data.empty:
-        optimal_clusters = find_optimal_clusters(data)
+    if st.button('Perform K-Means Clustering'):
+        # Standardize the data
+        scaler = StandardScaler()
+        scaled_data = scaler.fit_transform(scores_df)
+
+        # Use the elbow method to find the optimal number of clusters
+        optimal_clusters = find_optimal_clusters(scaled_data)
+        st.write(f'Optimal number of clusters determined by elbow method: {optimal_clusters}')
+        
+        # Perform K-Means Clustering with the determined optimal number of clusters
         kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
-        cluster_labels = kmeans.fit_predict(data)
+        cluster_labels = kmeans.fit_predict(scaled_data)
         
         # Display the clustering result
-        st.write(f'Optimal number of clusters determined by elbow method: {optimal_clusters}')
-        for i, competitor in enumerate(data.index):
+        for i, competitor in enumerate(scores_df.index):
             st.write(f'{competitor} is in Cluster {cluster_labels[i]+1}')
 
-# Initialize session state for screen navigation
-if 'current_screen' not in st.session_state:
-    st.session_state.current_screen = 'enter_info'
-
-# Display screens based on the current state
-if st.session_state.current_screen == 'enter_info':
+# App layout based on current screen
+if st.session_state['current_screen'] == 'enter_info':
     enter_info()
-elif st.session_state.current_screen == 'score_variables':
+elif st.session_state['current_screen'] == 'score_variables':
     score_variables()
