@@ -1,10 +1,10 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
 
 # Initialize session state variables if not already present
 if 'competitors' not in st.session_state:
