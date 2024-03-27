@@ -76,10 +76,10 @@ def score_variables():
         for i, competitor in enumerate(scores_df.index):
             st.write(f'{competitor} is in Cluster {cluster_labels[i]+1}')
 
-plot_choice = st.radio("How would you like to choose axes for plotting?",
+    plot_choice = st.radio("How would you like to choose axes for plotting?",
                                ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
 
-        if plot_choice == 'Use PCA to determine axes automatically':
+    if plot_choice == 'Use PCA to determine axes automatically':
             pca = PCA(n_components=2)
             principal_components = pca.fit_transform(scaled_data)
             fig, ax = plt.subplots()
@@ -91,7 +91,7 @@ plot_choice = st.radio("How would you like to choose axes for plotting?",
 
             st.pyplot(fig)
 
-        elif plot_choice == 'Manually select variables for axes':
+    elif plot_choice == 'Manually select variables for axes':
             variable_options = st.session_state['variables']  # Fetching variable names from session state
             x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
             y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
