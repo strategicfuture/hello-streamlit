@@ -76,7 +76,7 @@ def score_variables():
         for i, competitor in enumerate(scores_df.index):
             st.write(f'{competitor} is in Cluster {cluster_labels[i]+1}')
 
-            plot_choice = st.radio("How would you like to choose axes for plotting?",
+plot_choice = st.radio("How would you like to choose axes for plotting?",
                                ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
 
         if plot_choice == 'Use PCA to determine axes automatically':
@@ -103,6 +103,7 @@ def score_variables():
                 ax.annotate(competitor, (scores_df.at[competitor, x_var], scores_df.at[competitor, y_var]))
 
             st.pyplot(fig)
+         
 
 # App layout based on current screen
 if st.session_state['current_screen'] == 'enter_info':
