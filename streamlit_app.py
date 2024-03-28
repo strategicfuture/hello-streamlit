@@ -190,7 +190,7 @@ def show_results():
 
 
   # Subscription Call-to-Action
-    st.markdown("Download White Paper")
+    st.markdown("###Download White Paper")
     st.markdown("10X Market Impact in 10 Hours with World-Class Foresight")
     
     # Provide the URL to the subscription page
