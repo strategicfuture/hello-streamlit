@@ -102,7 +102,7 @@ def enter_info():
             <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="350">
         </div>
     """, unsafe_allow_html=True)
-    if st.button('Return to Start'):
+    if st.button('Return to Start', on_click=go_to_start):
         st.session_state.current_screen = 'init_challenge'
     st.header("Enter Competitors")
     # Helper text
