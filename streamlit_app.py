@@ -103,8 +103,8 @@ def show_results():
             scores_df = pd.DataFrame(st.session_state['scores_df'])
             fig, ax = plt.subplots()
             scatter = ax.scatter(scores_df[x_var].astype(float), scores_df[y_var].astype(float), c=cluster_labels, cmap='viridis')
-            for i, competitor in enumerate(scores_df.index):
-                ax.annotate(competitor, (scores_df.loc[competitor, x_var], scores_df.loc[competitor, y_var]))
+            # Annotate each point with the competitor's name
+            for competitor, x, y in zip(scores_df.index, scores_df[x_var], scores_df[y_var]):ax.annotate(competitor, (x, y))
             st.pyplot(fig)
     else:
         st.error("Please go back and perform clustering first.")
