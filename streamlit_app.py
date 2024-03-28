@@ -103,10 +103,13 @@ def show_results():
             variable_options = st.session_state.variables
             x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
             y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
+            # Ensure scores_df is correctly retrieved and indexed
+            scores_df = pd.DataFrame(st.session_state['scores_df']).T
+            scores_df.columns = st.session_state.variables
             fig, ax = plt.subplots()
-            scatter = ax.scatter(scores_df[x_var], scores_df[y_var], c=cluster_labels, cmap='viridis')
-            for i, competitor in enumerate(st.session_state.competitors):
-                ax.annotate(competitor, (scores_df.at[competitor, x_var], scores_df.at[competitor, y_var]))
+            scatter = ax.scatter(scores_df[x_var].astype(float), scores_df[y_var].astype(float), c=cluster_labels, cmap='viridis')
+             # Correctly annotate each point with the competitor's name
+            for i, competitor in enumerate(scores_df.index):ax.annotate(competitor, (scores_df.loc[competitor, x_var], scores_df.loc[competitor, y_var]))
             st.pyplot(fig)
     else:
         st.error("Please go back and perform clustering first.")
