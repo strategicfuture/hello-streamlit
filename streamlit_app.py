@@ -49,12 +49,10 @@ def init_challenge_screen():
     # Using HTML to center the logo image
     st.markdown("""
         <div style="text-align: center;">
-            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/usvsthem.jpg?raw=true" width="350">
-        </div>
-    """, unsafe_allow_html=True)
-    st.markdown("""
-        Solution Development Atlas: K-Means Competitive Clustering Analysis
-    """)
+        <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/usvsthem.jpg?raw=true" width="350">
+        <p>Solution Development Atlas: K-Means Competitive Clustering Analysis</p>
+    </div>
+""", unsafe_allow_html=True)
 
 # Function to find the optimal number of clusters using the elbow method
 def find_optimal_clusters(data):
