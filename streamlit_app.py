@@ -122,5 +122,3 @@ elif st.session_state.current_screen == 'score_variables':
     score_variables()
 elif st.session_state.current_screen == 'show_results':
     show_results()
-
-
