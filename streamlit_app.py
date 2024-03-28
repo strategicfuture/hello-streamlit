@@ -29,7 +29,7 @@ def init_challenge_screen():
     # Using HTML to center the logo image
     st.markdown("""
         <div style="text-align: center;">
-            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="390">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="350">
         </div>
     """, unsafe_allow_html=True)
     st.title("Your Four Move Advantage for Sustainable Growth")
@@ -45,7 +45,7 @@ def init_challenge_screen():
         if challenge_response.startswith("Do you need strategic guidance"):
             st.session_state.current_screen = 'enter_info'
         else:
-            st.info("This demo focuses on strategic guidance for competitive solution development. Please proceed to explore.")
+            st.info("This demo is designed to spotlight PROACT strategies for developing standout competitive solutions. For a deeper dive and to continue this enriching conversation, please visit us at strategicforesight.ai")
 
 
 # Function to find the optimal number of clusters using the elbow method
@@ -79,6 +79,12 @@ def apply_min_max_normalization(scores_df, variable_weights):
     return scores_df
 
 def enter_info():
+    # Using HTML to center the logo image
+    st.markdown("""
+        <div style="text-align: center;">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="350">
+        </div>
+    """, unsafe_allow_html=True)
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
     st.session_state.competitors = competitor_names
@@ -86,6 +92,12 @@ def enter_info():
         st.session_state.current_screen = 'enter_market_share'
 
 def enter_market_share():
+    # Using HTML to center the logo image
+    st.markdown("""
+        <div style="text-align: center;">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="350">
+        </div>
+    """, unsafe_allow_html=True)
     if st.button('Back to Enter Info'):
         st.session_state.current_screen = 'enter_info'
     for competitor in st.session_state.competitors:
@@ -96,6 +108,12 @@ def enter_market_share():
         st.session_state.current_screen = 'score_variables'
 
 def score_variables():
+    # Using HTML to center the logo image
+    st.markdown("""
+        <div style="text-align: center;">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="350">
+        </div>
+    """, unsafe_allow_html=True)
     if st.button('Back to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
 
