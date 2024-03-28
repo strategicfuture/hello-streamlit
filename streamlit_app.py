@@ -159,10 +159,12 @@ def score_variables():
     # Adjusted to use index in the key for uniqueness
     variables = [st.text_input(f'Enter name for Variable {i+1}: ', value=st.session_state.variables[i] if i < len(st.session_state.variables) else '', key=f'var_name_{i}') for i in range(num_variables)]
     st.session_state.variables = variables
+
     # Adding helper text about weighting variables
-st.markdown("""
+    st.markdown("""
     <div style="text-align: justify;">
         <p><strong>Weighting Variables:</strong> Assign weights to each variable reflecting their importance in your analysis. The total weight across all variables should <strong>add up to 100%</strong>. This ensures a balanced approach, where the sum of all weights accurately represents their collective impact on your strategic analysis. Distribute the weights carefully to mirror the significance of each variable in shaping your competitive landscape.</p>
+    </div> """, unsafe_allow_html=True)
 
     # Using index in the key for uniqueness
     variable_weights = {}
