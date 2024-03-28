@@ -137,7 +137,13 @@ def score_variables():
     st.header("Score Variables")
     # Helper text
     st.markdown("""
-        Evaluate each competitor on key variables such as innovation, customer engagement, and market expansion potential. This scoring helps identify areas of competitive advantage and potential strategic moves.
+        Evaluate each competitor on pivotal variables that can alter the competitive landscape—factors like innovation, customer engagement, and market expansion potential are just the beginning. This evaluation is more than just a scoring exercise; it's a strategic exploration into what makes a company stand out, compete, or even dominate.
+
+Game-Changers and Qualifiers: Some variables act as game-changers, creating unparalleled competitive advantages that can redefine the industry. Others are qualifiers, essential for just staying in the game. Identify which variables can elevate your strategy from competitive to dominant.
+
+Balancing Internal and External Factors: Consider variables from two lenses—internal capabilities such as operational efficiency, technology innovation, and team expertise, and external forces like market trends, customer needs, and regulatory changes. How these factors intersect will guide your strategic focus.
+
+Weighting for Impact: Not all variables carry equal weight in determining success. Assign weightings that reflect their potential to drive your competitive advantage. Think critically about how shifts in these variables could impact your positioning and strategy.
     """)
     # Assuming the number of variables has already been set and is consistent
     num_variables = st.number_input('Enter the number of variables:', min_value=1, value=len(st.session_state.variables) if 'variables' in st.session_state and st.session_state.variables else 3, step=1, key='num_variables_setup')
