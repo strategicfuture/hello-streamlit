@@ -318,27 +318,12 @@ def show_results():
 # App layout based on current screen
 if st.session_state.current_screen == 'init_challenge':
     init_challenge_screen()
-    if st.button('Next'):
-        st.session_state.current_screen = 'enter_info'
 elif st.session_state.current_screen == 'enter_info':
     enter_info()
-    if st.button('Next'):
-        st.session_state.current_screen = 'enter_market_share'
-    if st.button('Return to Start'):
-        st.session_state.current_screen = 'init_challenge'
 elif st.session_state.current_screen == 'enter_market_share':
     enter_market_share()
-    if st.button('Next'):
-        st.session_state.current_screen = 'score_variables'
-    if st.button('Back to Enter Info'):
-        st.session_state.current_screen = 'enter_info'
 elif st.session_state.current_screen == 'score_variables':
     score_variables()
-    if st.button('Score and Analyze'):
-        st.session_state.current_screen = 'show_results'
-    if st.button('Back to Enter Market Share'):
-        st.session_state.current_screen = 'enter_market_share'
 elif st.session_state.current_screen == 'show_results':
     show_results()
-    if st.button('Back to Score Variables'):
-        st.session_state.current_screen = 'score_variables'
+
