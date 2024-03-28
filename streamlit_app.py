@@ -163,6 +163,12 @@ def score_variables():
         st.warning('Please enter names for all competitors and variables.')
 
 def show_results():
+    # Using HTML to center the logo image
+    st.markdown("""
+        <div style="text-align: center;">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="350">
+        </div>
+    """, unsafe_allow_html=True)
     if st.button('Back to Score Variables'):
         st.session_state.current_screen = 'score_variables'
     
@@ -231,6 +237,13 @@ def show_results():
     - Outserve customers
     - ...and much more!
     """)
+
+    # Using HTML to center the logo image
+    st.markdown("""
+        <div style="text-align: center;">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/10%20Hour%20Blueprint%20(1).png?raw=true" width="350">
+        </div>
+    """, unsafe_allow_html=True)
 
 # App layout based on current screen
 if st.session_state.current_screen == 'init_challenge':
