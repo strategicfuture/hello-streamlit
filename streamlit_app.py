@@ -78,52 +78,40 @@ def score_variables():
     else:
         st.info("Please enter scores for each competitor and perform clustering to view results.")
 
+# Function to display the results and plotting
 def show_results():
     if st.button('Back to Score Variables'):
         st.session_state.current_screen = 'score_variables'
-    
     if st.session_state.show_plot:
-        # Attempt to reconstruct scores_df with a check for column alignment
-        try:
-            scores_df_dict = st.session_state['scores_df']
-            # Verify that the stored data aligns with current user selections
-            expected_columns = len(st.session_state.variables)
-            sample_values = next(iter(scores_df_dict.values()))
-            if len(sample_values) != expected_columns:
-                st.error("Mismatch between selected variables and stored scores. Please go back and ensure consistency in your selections.")
-                return
-
-            # Proceed to reconstruct scores_df
-            scores_df = pd.DataFrame.from_dict(scores_df_dict, orient='index')
-            scores_df.columns = st.session_state.variables
-            scores_df.index = st.session_state.competitors
+        # Reconstruct scores_df with competitor names correctly set as the DataFrame index
+        scores_df = pd.DataFrame(st.session_state['scores_df']).T  # Transpose to switch rows and columns
+        scores_df.columns = st.session_state.variables  # Set column names to variables
+        scores_df.index = st.session_state.competitors  # IMPORTANT: Set DataFrame index to competitor names
+        
+        plot_choice = st.radio("How would you like to choose axes for plotting?",
+                               ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
+        
+        scaled_data = np.array(st.session_state.scaled_data)  # Ensure scaled_data is in the correct format
+        cluster_labels = np.array(st.session_state.cluster_labels)
+        
+        if plot_choice == 'Use PCA to determine axes automatically':
+            pca = PCA(n_components=2)
+            principal_components = pca.fit_transform(scaled_data)
+            fig, ax = plt.subplots()
+            scatter = ax.scatter(principal_components[:, 0], principal_components[:, 1], c=cluster_labels, cmap='viridis')
+            for i, competitor in enumerate(scores_df.index):
+                ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
+            st.pyplot(fig)
             
-            plot_choice = st.radio("How would you like to choose axes for plotting?", 
-                                   ['Use PCA to determine axes automatically', 'Manually select variables for axes'])
-
-            scaled_data = np.array(st.session_state.scaled_data)
-            cluster_labels = np.array(st.session_state.cluster_labels)
-
-            if plot_choice == 'Use PCA to determine axes automatically':
-                pca = PCA(n_components=2)
-                principal_components = pca.fit_transform(scaled_data)
-                fig, ax = plt.subplots()
-                scatter = ax.scatter(principal_components[:, 0], principal_components[:, 1], c=cluster_labels, cmap='viridis')
-                for i, competitor in enumerate(scores_df.index):
-                    ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
-                st.pyplot(fig)
-
-            elif plot_choice == 'Manually select variables for axes':
-                variable_options = st.session_state.variables
-                x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
-                y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
-                fig, ax = plt.subplots()
-                scatter = ax.scatter(scores_df[x_var].astype(float), scores_df[y_var].astype(float), c=cluster_labels, cmap='viridis')
-                for i, competitor in enumerate(scores_df.index):
-                    ax.annotate(competitor, (scores_df[x_var][i], scores_df[y_var][i]))
-                st.pyplot(fig)
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+        elif plot_choice == 'Manually select variables for axes':
+            variable_options = st.session_state.variables
+            x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
+            y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
+            fig, ax = plt.subplots()
+            scatter = ax.scatter(scores_df[x_var].astype(float), scores_df[y_var].astype(float), c=cluster_labels, cmap='viridis')
+            for competitor, x, y in zip(scores_df.index, scores_df[x_var], scores_df[y_var]):
+                ax.annotate(competitor, (x, y))
+            st.pyplot(fig)
     else:
         st.error("Please go back and perform clustering first.")
 
