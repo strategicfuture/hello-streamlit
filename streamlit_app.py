@@ -87,6 +87,11 @@ def enter_info():
     """, unsafe_allow_html=True)
     if st.button('Return to Start'):
         st.session_state.current_screen = 'init_challenge'
+    st.header("Enter Competitors")
+    # Helper text
+    st.markdown("""
+        Consider not just your direct competitors but also emerging startups and established leaders in adjacent spaces. These players could redefine the competitive landscape and present new challenges or opportunities.
+    """)
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
     st.session_state.competitors = competitor_names
@@ -241,7 +246,7 @@ def show_results():
     # Using HTML to center the logo image
     st.markdown("""
         <div style="text-align: center;">
-            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/10%20Hour%20Blueprint%20(1).png?raw=true" width="500">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/10%20Hour%20Blueprint%20(1).png?raw=true" width="600">
         </div>
     """, unsafe_allow_html=True)
 
