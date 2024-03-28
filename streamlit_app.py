@@ -74,14 +74,21 @@ def enter_market_share():
 def score_variables():
     if st.button('Back to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
-    num_variables = st.number_input('Enter the number of variables:', min_value=1, value=len(st.session_state.variables) if 'variables' in st.session_state and st.session_state.variables else 3, step=1, key='num_variables')
-    variables = [st.text_input(f'Enter name for Variable {i+1}: ', value=st.session_state.variables[i] if 'variables' in st.session_state and i < len(st.session_state.variables) else '', key=f'var_{i}') for i in range(num_variables)]
+
+    # Assuming the number of variables has already been set and is consistent
+    num_variables = st.number_input('Enter the number of variables:', min_value=1, value=len(st.session_state.variables) if 'variables' in st.session_state and st.session_state.variables else 3, step=1, key='num_variables_setup')
+
+    # Adjusted to use index in the key for uniqueness
+    variables = [st.text_input(f'Enter name for Variable {i+1}: ', value=st.session_state.variables[i] if i < len(st.session_state.variables) else '', key=f'var_name_{i}') for i in range(num_variables)]
     st.session_state.variables = variables
 
+    # Using index in the key for uniqueness
     variable_weights = {}
-    for variable in st.session_state.variables:
-        weight = st.number_input(f'Weight for {variable} (%):', min_value=0, max_value=100, value=10, key=f'weight_{variable}')
-        variable_weights[variable] = weight
+    for i, variable in enumerate(variables):
+        if variable:  # Ensure the variable has been named
+            weight_key = f'weight_{i}_{variable}'  # Incorporate both index and variable name for uniqueness
+            weight = st.number_input(f'Weight for {variable} (%):', min_value=0, max_value=100, value=10, key=weight_key)
+            variable_weights[variable] = weight
     st.session_state.variable_weights = variable_weights
 
     scores_df = pd.DataFrame(index=st.session_state.competitors, columns=st.session_state.variables)
