@@ -83,13 +83,19 @@ def show_results():
         st.session_state.current_screen = 'score_variables'
     
     if st.session_state.show_plot:
+        # Attempt to reconstruct scores_df with a check for column alignment
         try:
-            # Reconstruct scores_df from the dictionary stored in session state
             scores_df_dict = st.session_state['scores_df']
+            # Verify that the stored data aligns with current user selections
+            expected_columns = len(st.session_state.variables)
+            sample_values = next(iter(scores_df_dict.values()))
+            if len(sample_values) != expected_columns:
+                st.error("Mismatch between selected variables and stored scores. Please go back and ensure consistency in your selections.")
+                return
+
+            # Proceed to reconstruct scores_df
             scores_df = pd.DataFrame.from_dict(scores_df_dict, orient='index')
-            scores_df.columns = st.session_state.variables  # Set the column names to the variables selected by the user
-            
-            # Ensure the index of scores_df is properly set to the competitors' names
+            scores_df.columns = st.session_state.variables
             scores_df.index = st.session_state.competitors
             
             plot_choice = st.radio("How would you like to choose axes for plotting?", 
