@@ -85,6 +85,8 @@ def enter_info():
             <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="350">
         </div>
     """, unsafe_allow_html=True)
+    if st.button('Return to Start'):
+        st.session_state.current_screen = 'init_challenge'
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
     st.session_state.competitors = competitor_names
