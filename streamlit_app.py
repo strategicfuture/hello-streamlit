@@ -41,7 +41,7 @@ def init_challenge_screen():
                                       "OUTPACE: Are you prepared to embed scenario planning into your growth strategies, securing a first-mover advantage in future-proofing against unforeseen shifts?"
                                   ], index=1, key='init_challenge')  # Default to the second option
 
-    if st.button('Next', key='next_button'):
+    if st.button("Next"):
         if challenge_response.startswith("PROACT"):
             st.session_state.current_screen = 'enter_info'
         else:
@@ -101,7 +101,7 @@ def enter_info():
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
     st.session_state.competitors = competitor_names
-    if st.button('Next to Enter Market Share', key='next_to_market_share_button'):
+    if st.button('Next to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
 
 def enter_market_share():
@@ -266,7 +266,6 @@ def show_results():
     else:
         st.error("Please go back and perform clustering first.")
 
-
   # Subscription Call-to-Action
     st.markdown("### Download White Paper")
     st.markdown("10X Market Impact in 10 Hours with World-Class Foresight")
@@ -327,3 +326,26 @@ elif st.session_state.current_screen == 'score_variables':
     score_variables()
 elif st.session_state.current_screen == 'show_results':
     show_results()
+
+# Buttons to navigate between screens
+if st.session_state.current_screen != 'init_challenge':
+    if st.button('Back'):
+        if st.session_state.current_screen == 'enter_info':
+            st.session_state.current_screen = 'init_challenge'
+        elif st.session_state.current_screen == 'enter_market_share':
+            st.session_state.current_screen = 'enter_info'
+        elif st.session_state.current_screen == 'score_variables':
+            st.session_state.current_screen = 'enter_market_share'
+        elif st.session_state.current_screen == 'show_results':
+            st.session_state.current_screen = 'score_variables'
+
+if st.session_state.current_screen != 'show_results':
+    if st.button('Next'):
+        if st.session_state.current_screen == 'init_challenge':
+            st.session_state.current_screen = 'enter_info'
+        elif st.session_state.current_screen == 'enter_info':
+            st.session_state.current_screen = 'enter_market_share'
+        elif st.session_state.current_screen == 'enter_market_share':
+            st.session_state.current_screen = 'score_variables'
+        elif st.session_state.current_screen == 'score_variables':
+            st.session_state.current_screen = 'show_results'
