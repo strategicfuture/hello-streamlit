@@ -43,7 +43,7 @@ def init_challenge_screen():
 
     if st.button("Next"):
         if challenge_response.startswith("PROACT"):
-            st.button('Next', on_click=set_current_screen, args=['enter_info'])
+            st.button('Next', on_click=enter_info, args=['enter_info'])
         else:
             st.info("This demo is designed to spotlight PROACT strategies for developing standout competitive solutions. For a deeper dive and to continue this enriching conversation, please visit us at strategicforesight.ai")
     # Using HTML to center the logo image
