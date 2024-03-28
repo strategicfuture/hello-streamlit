@@ -107,7 +107,7 @@ def enter_market_share():
     """, unsafe_allow_html=True)
     if st.button('Back to Enter Info'):
         st.session_state.current_screen = 'enter_info'
-     st.header("Enter Market Share")
+        st.header("Enter Market Share")
     # Helper text
     st.markdown("""
         Reflect on the market share distribution, considering both current market dynamics and potential shifts. Market share can offer insights into a competitor's strength and customer reach.
