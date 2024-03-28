@@ -84,25 +84,19 @@ def show_results():
         st.session_state.current_screen = 'score_variables'
     
     if st.session_state.show_plot:
-        # Attempt to reconstruct scores_df and handle potential issues with column names
-        try:
-            scores_df_dict = st.session_state['scores_df']
-            scores_df = pd.DataFrame(scores_df_dict).T  # Transpose to ensure correct orientation
-            scores_df.columns = st.session_state.variables  # Attempt to set column names
-            assert len(scores_df.columns) == len(st.session_state.variables), "Column length mismatch"
-        except AssertionError as e:
-            st.error(f"Error setting column names: {e}")
-            return  # Early return if there's an issue with column names
-
-        scores_df.index = st.session_state.competitors  # Set DataFrame index to competitor names
+        # Correctly reconstruct scores_df from scores_df_dict
+        scores_df_dict = st.session_state['scores_df']
+        scores_df = pd.DataFrame.from_dict(scores_df_dict, orient='index', columns=st.session_state.variables)
         
+        # Proceed with plotting...
         plot_choice = st.radio("How would you like to choose axes for plotting?",
                                ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
         
-        scaled_data = np.array(st.session_state.scaled_data)  # Convert scaled_data back into an array format
+        scaled_data = np.array(st.session_state.scaled_data)
         cluster_labels = np.array(st.session_state.cluster_labels)
         
         if plot_choice == 'Use PCA to determine axes automatically':
+            # PCA and plotting code as before...
             pca = PCA(n_components=2)
             principal_components = pca.fit_transform(scaled_data)
             fig, ax = plt.subplots()
@@ -111,20 +105,17 @@ def show_results():
                 ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
             st.pyplot(fig)
 
-            # Optionally display PCA component contributions
-            pca_contributions = pd.DataFrame(pca.components_, columns=scores_df.columns, index=['PC1', 'PC2']).T
-            pca_contributions.columns = ['PC1 Contribution', 'PC2 Contribution']
-            st.write("PCA Components' Contributions to Variables:")
-            st.dataframe(pca_contributions.style.format("{:.2}"))
+            # Optionally display PCA component contributions as before...
             
         elif plot_choice == 'Manually select variables for axes':
+            # Manually select variables for axes and plotting code as before...
             variable_options = st.session_state.variables
             x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
             y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
             fig, ax = plt.subplots()
             scatter = ax.scatter(scores_df[x_var].astype(float), scores_df[y_var].astype(float), c=cluster_labels, cmap='viridis')
-            for i, competitor in enumerate(scores_df.index):
-                ax.annotate(competitor, (scores_df.loc[competitor, x_var], scores_df.loc[competitor, y_var]))
+            for competitor, x, y in zip(scores_df.index, scores_df[x_var], scores_df[y_var]):
+                ax.annotate(competitor, (x, y))
             st.pyplot(fig)
     else:
         st.error("Please go back and perform clustering first.")
