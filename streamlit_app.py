@@ -188,6 +188,27 @@ def show_results():
     else:
         st.error("Please go back and perform clustering first.")
 
+    st.write("Subscribe to our email list to export the results.")
+    user_email = st.text_input("Enter your email address:", key="user_email")
+    subscribed = st.checkbox("I agree to subscribe to the email list.", key="subscribed")
+
+  # Subscription Call-to-Action
+    st.markdown("Download White Paper")
+    st.markdown("10X Market Impact in 10 Hours with World-Class Foresight")
+    
+    # Provide the URL to the subscription page
+    subscription_url = "https://mailchi.mp/strategicforesight/growth-solutions"
+    st.markdown(f"[Download Now]({subscription_url})", unsafe_allow_html=True)
+
+    # Optionally, offer more context or a teaser of what they'll learn
+    st.markdown("This course will equip you with the tools and knowledge to:")
+    st.markdown("""
+    - Anticipate market trends and competitor movements
+    - Innovate proactively, creating market-leading products and services
+    - Navigate and leverage emerging opportunities
+    - ...and much more!
+    """)
+
 # App layout based on current screen
 if st.session_state.current_screen == 'init_challenge':
     init_challenge_screen()
