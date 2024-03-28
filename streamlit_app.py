@@ -68,6 +68,7 @@ def score_variables():
         st.session_state.scaled_data = scaled_data
         st.session_state.cluster_labels = cluster_labels
         st.session_state.show_plot = True
+        st.session_state['scores_df'] = scores_df.to_dict('list')  # Convert DataFrame to a dictionary for session state storage
         st.session_state.current_screen = 'show_results'
     else:
         st.info("Please enter scores for each competitor and perform clustering to view results.")
@@ -77,6 +78,7 @@ def show_results():
     if st.button('Back to Score Variables'):
         st.session_state.current_screen = 'score_variables'
     if st.session_state.show_plot:
+        scores_df = pd.DataFrame(st.session_state['scores_df'])
         plot_choice = st.radio("How would you like to choose axes for plotting?", ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
         scaled_data = st.session_state.scaled_data
         cluster_labels = st.session_state.cluster_labels
@@ -93,9 +95,9 @@ def show_results():
             x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
             y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
             fig, ax = plt.subplots()
-            scatter = ax.scatter(scores_df[x_var], scores_df[y_var], c=cluster_labels, cmap='viridis')
-            for i, competitor in enumerate(st.session_state.competitors):
-                ax.annotate(competitor, (scores_df.at[competitor, x_var], scores_df.at[competitor, y_var]))
+            scatter = ax.scatter(scores_df[x_var].astype(float), scores_df[y_var].astype(float), c=cluster_labels, cmap='viridis')
+            for i, competitor in enumerate(scores_df.index):
+                ax.annotate(competitor, (scores_df.loc[competitor, x_var], scores_df.loc[competitor, y_var]))
             st.pyplot(fig)
     else:
         st.error("Please go back and perform clustering first.")
