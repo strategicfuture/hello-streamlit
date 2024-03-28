@@ -291,6 +291,30 @@ def show_results():
         </div>
     """, unsafe_allow_html=True)
 
+    # Adding helper text about weighting variables
+    st.markdown("""
+    <div style="text-align: justify;">
+        <p><strong>Reflection Questions:</strong> Strategic Positioning: How does your company's position on the map reflect your current competitive advantage? Are there variables where you lead, and how sustainable are these advantages?
+
+Emerging Opportunities: Based on the plot, which emerging opportunities can your company uniquely capitalize on? How can you leverage these to redefine or expand your market presence?
+
+Future Differentiation: Which variables are likely to become more critical for differentiation in the future? How can your company proactively develop capabilities or solutions in these areas?
+
+Adaptability to Change: Considering potential industry shifts highlighted by the map, how adaptable is your current strategy? What changes might you need to consider to remain competitive or become a leader?
+
+Innovation and Disruption: Are there areas ripe for innovation or disruption where you can challenge established competitors or create new value for customers?
+
+Resource Allocation: How should your findings from the map influence the allocation of your resources (time, talent, capital) towards areas of high strategic importance?
+
+Collaboration and Partnership: Could collaborations or partnerships enhance your positioning on certain variables or accelerate your path to leadership?
+
+Potential Threats: Which companies positioned closely to you pose the most significant threats, and why? How can you monitor these competitors and prepare for possible strategic moves they might make?
+
+Blind Spots: Were there any surprises or “blind spots” revealed by the strategic group map? How can your company address these gaps in perception or strategy?
+
+Long-term Vision: How does your positioning align with your company's long-term vision and goals? What strategic shifts might you need to consider to ensure alignment and success in the future?</p>
+    </div> """, unsafe_allow_html=True)
+
 # App layout based on current screen
 if st.session_state.current_screen == 'init_challenge':
     init_challenge_screen()
