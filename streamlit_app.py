@@ -107,6 +107,11 @@ def enter_market_share():
     """, unsafe_allow_html=True)
     if st.button('Back to Enter Info'):
         st.session_state.current_screen = 'enter_info'
+     st.header("Enter Market Share")
+    # Helper text
+    st.markdown("""
+        Reflect on the market share distribution, considering both current market dynamics and potential shifts. Market share can offer insights into a competitor's strength and customer reach.
+    """)
     for competitor in st.session_state.competitors:
         if competitor:
             market_share = st.number_input(f'Enter market share for {competitor} (%): ', min_value=0, max_value=100, key=f'market_share_{competitor}')
@@ -123,7 +128,14 @@ def score_variables():
     """, unsafe_allow_html=True)
     if st.button('Back to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
-
+    st.header("Score Variables")
+    # Helper text
+    st.markdown("""
+        Evaluate each competitor on key variables such as innovation, customer engagement, and market expansion potential. This scoring helps identify areas of competitive advantage and potential strategic moves.
+    """)
+    # Example scoring mechanism
+    variables = ['Innovation', 'Customer Engagement', 'Market Expansion']
+    scores = {var: st.slider(f"Rate {var}:", 0, 100, 50) for var in variables}
     # Assuming the number of variables has already been set and is consistent
     num_variables = st.number_input('Enter the number of variables:', min_value=1, value=len(st.session_state.variables) if 'variables' in st.session_state and st.session_state.variables else 3, step=1, key='num_variables_setup')
 
