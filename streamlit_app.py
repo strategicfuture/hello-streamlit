@@ -11,6 +11,8 @@ if 'competitors' not in st.session_state:
     st.session_state.competitors = []
 if 'variables' not in st.session_state:
     st.session_state.variables = []
+if 'variable_weights' not in st.session_state:
+    st.session_state.variable_weights = {}
 if 'market_share' not in st.session_state:
     st.session_state.market_share = {}  # Initialize market share dictionary
 if 'current_screen' not in st.session_state:
@@ -37,7 +39,21 @@ def find_optimal_clusters(data):
         elbow_point = 1
     return elbow_point
 
-# Function to display the first screen for entering competitor names
+def apply_min_max_normalization(scores_df, variable_weights):
+    # Normalize variable weights so they sum to 1
+    total_weight = sum(variable_weights.values())
+    normalized_weights = {k: v / total_weight for k, v in variable_weights.items()}
+    # Apply weighted min-max normalization to each variable
+    for variable in scores_df.columns:
+        min_val = scores_df[variable].min()
+        max_val = scores_df[variable].max()
+        range_val = max_val - min_val
+        if range_val > 0:  # Avoid division by zero
+            scores_df[variable] = scores_df[variable].apply(lambda x: (x - min_val) / range_val) * normalized_weights[variable]
+        else:
+            scores_df[variable] = 0  # Handle case where all values are the same
+    return scores_df
+
 def enter_info():
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
@@ -45,82 +61,74 @@ def enter_info():
     if st.button('Next to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
 
-# Function to enter market share percentages for each competitor
 def enter_market_share():
     if st.button('Back to Enter Info'):
         st.session_state.current_screen = 'enter_info'
     for competitor in st.session_state.competitors:
-        if competitor:  # Only proceed if a name has been entered
+        if competitor:
             market_share = st.number_input(f'Enter market share for {competitor} (%): ', min_value=0, max_value=100, key=f'market_share_{competitor}')
             st.session_state.market_share[competitor] = market_share
     if st.button('Next to Score Variables'):
         st.session_state.current_screen = 'score_variables'
 
-# Function to display the second screen for scoring variables
 def score_variables():
     if st.button('Back to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
     num_variables = st.number_input('Enter the number of variables:', min_value=1, value=len(st.session_state.variables) if 'variables' in st.session_state and st.session_state.variables else 3, step=1, key='num_variables')
     variables = [st.text_input(f'Enter name for Variable {i+1}: ', value=st.session_state.variables[i] if 'variables' in st.session_state and i < len(st.session_state.variables) else '', key=f'var_{i}') for i in range(num_variables)]
     st.session_state.variables = variables
-    
-    # Initiate an empty DataFrame to collect scores
+
+    variable_weights = {}
+    for variable in st.session_state.variables:
+        weight = st.number_input(f'Weight for {variable} (%):', min_value=0, max_value=100, value=10, key=f'weight_{variable}')
+        variable_weights[variable] = weight
+    st.session_state.variable_weights = variable_weights
+
     scores_df = pd.DataFrame(index=st.session_state.competitors, columns=st.session_state.variables)
-    
-    # Flag to track if all scores have been input
     all_scores_entered = True
-    
-    # Iterate over competitors and variables to display sliders for scoring
     for competitor in st.session_state.competitors:
         for variable in st.session_state.variables:
-            if competitor and variable:  # Ensure both competitor and variable names have been entered
+            if competitor and variable:
                 score_key = f'{competitor}_{variable}'
                 score = st.slider(f'Rate {competitor} for {variable}:', 0.0, 1.0, 0.5, key=score_key)
                 scores_df.at[competitor, variable] = score
             else:
                 all_scores_entered = False
-    
-    # Only display the "Score and Analyze" button if all scores have been input
+
     if all_scores_entered and st.button('Score and Analyze'):
-        # Perform scaling
+        scores_df = apply_min_max_normalization(scores_df, st.session_state.variable_weights)
         scaler = StandardScaler()
-        scaled_data = scaler.fit_transform(scores_df.fillna(0))  # Fill any missing values with 0
+        scaled_data = scaler.fit_transform(scores_df.fillna(0))
         optimal_clusters = find_optimal_clusters(scaled_data)
         kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
         cluster_labels = kmeans.fit_predict(scaled_data)
         
-        # Save results for use in show_results
         st.session_state.scaled_data = scaled_data
         st.session_state.cluster_labels = cluster_labels
         st.session_state.show_plot = True
-        st.session_state.scores_df = scores_df.to_dict('list')  # Convert DataFrame to dictionary for session state storage
+        st.session_state.scores_df = scores_df.to_dict('list')
         st.session_state.current_screen = 'show_results'
     elif not all_scores_entered:
         st.warning('Please enter names for all competitors and variables.')
 
-
-
-# Function to display the results and plotting
 def show_results():
     if st.button('Back to Score Variables'):
         st.session_state.current_screen = 'score_variables'
     
     if st.session_state.show_plot:
         scores_df = pd.DataFrame(st.session_state['scores_df'])
-        scores_df.columns = st.session_state.variables  # Ensure columns match selected variables
+        scores_df.columns = st.session_state.variables
         
-        # Display number of clusters and which cluster each competitor belongs to
         num_clusters = np.unique(st.session_state.cluster_labels).size
         st.write(f"Number of clusters: {num_clusters}")
         for i, competitor in enumerate(st.session_state.competitors):
             st.write(f"{competitor} is in Cluster {st.session_state.cluster_labels[i]+1}")
 
-        plot_choice = st.radio("How would you like to choose axes for plotting?",
-                               ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
+        plot_choice = st.radio("How would you like to choose axes for plotting?", ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
         
         scaled_data = np.array(st.session_state.scaled_data)
         cluster_labels = np.array(st.session_state.cluster_labels)
-        market_share = st.session_state.market_share  # Retrieve market share data
+        market_share = st.session_state.market_share
         
         if plot_choice == 'Use PCA to determine axes automatically':
             pca = PCA(n_components=2)
@@ -131,7 +139,6 @@ def show_results():
                 ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
             st.pyplot(fig)
             
-            # Display PCA component contributions
             pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
             st.write("PCA Components' Contributions to Variables:")
             st.dataframe(pca_contributions.style.format("{:.2f}"))
@@ -145,13 +152,13 @@ def show_results():
                 for competitor in st.session_state.competitors:
                     x_score = scores_df.loc[competitor, x_var]
                     y_score = scores_df.loc[competitor, y_var]
-                    market_size = market_share[competitor] * 100  # Adjust size by market share
+                    market_size = market_share[competitor] * 100
                     ax.scatter(x_score, y_score, s=market_size, label=competitor)
                     ax.annotate(competitor, (x_score, y_score))
                 st.pyplot(fig)
             except KeyError as e:
                 st.error(f"An error occurred due to too much convergence among the selected axes or missing data: {e}. Please reconsider the variables chosen for axes or ensure all competitors and variables have been scored.")
-            except Exception as e:  # Catch-all for other potential errors
+            except Exception as e:
                 st.error(f"An unexpected error occurred: {e}. Please check your data and selections.")
     else:
         st.error("Please go back and perform clustering first.")
