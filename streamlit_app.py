@@ -11,6 +11,8 @@ if 'competitors' not in st.session_state:
     st.session_state.competitors = []
 if 'variables' not in st.session_state:
     st.session_state.variables = []
+if 'market_share' not in st.session_state:
+    st.session_state.market_share = {}  # Initialize market share dictionary
 if 'current_screen' not in st.session_state:
     st.session_state.current_screen = 'enter_info'
 if 'show_plot' not in st.session_state:
@@ -35,54 +37,59 @@ def find_optimal_clusters(data):
         elbow_point = 1
     return elbow_point
 
-# Function to display the first screen for entering competitor and variable names
+# Function to display the first screen for entering competitor names
 def enter_info():
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
-    num_variables = st.number_input('Enter the number of variables:', min_value=1, value=10, step=1, key='num_variables')
     competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
     st.session_state.competitors = competitor_names
-    variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(num_variables)]
-    st.session_state.variables = variables
+    if st.button('Next to Enter Market Share'):
+        st.session_state.current_screen = 'enter_market_share'
+
+# Function to enter market share percentages for each competitor
+def enter_market_share():
+    if st.button('Back to Enter Info'):
+        st.session_state.current_screen = 'enter_info'
+    for competitor in st.session_state.competitors:
+        if competitor:  # Only proceed if a name has been entered
+            market_share = st.number_input(f'Enter market share for {competitor} (%): ', min_value=0, max_value=100, key=f'market_share_{competitor}')
+            st.session_state.market_share[competitor] = market_share
     if st.button('Next to Score Variables'):
         st.session_state.current_screen = 'score_variables'
 
 # Function to display the second screen for scoring variables
 def score_variables():
-    if st.button('Back to Enter Info'):
-        st.session_state.current_screen = 'enter_info'
-    scores_df = pd.DataFrame(columns=st.session_state.variables)
-    for competitor in st.session_state.competitors:
-        if competitor:  # Only proceed if a name has been entered
-            scores = [st.slider(f'Enter score for {competitor} - {variable}: ', min_value=0.0, max_value=1.0, value=0.5, key=f'{competitor}_{variable}') for variable in st.session_state.variables]
-            scores_df.loc[competitor] = scores
-    if st.button('Perform Variable Scoring'):
-        st.session_state.current_screen = 'review_scores'
+    if st.button('Back to Enter Market Share'):
+        st.session_state.current_screen = 'enter_market_share'
+    num_variables = st.number_input('Enter the number of variables:', min_value=1, value=10, step=1, key='num_variables')
+    variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(num_variables)]
+    st.session_state.variables = variables
+    if st.button('Perform K-Means Clustering'):
+        scores_df = pd.DataFrame(columns=st.session_state.variables)
+        for competitor in st.session_state.competitors:
+            if competitor:  # Only proceed if a name has been entered
+                scores = [st.slider(f'Enter score for {competitor} - {variable}: ', min_value=0.0, max_value=1.0, value=0.5, key=f'{competitor}_{variable}') for variable in st.session_state.variables]
+                scores_df.loc[competitor] = scores
+        scaler = StandardScaler()
+        scaled_data = scaler.fit_transform(scores_df)
+        optimal_clusters = find_optimal_clusters(scaled_data)
+        st.write(f'Optimal number of clusters determined by elbow method: {optimal_clusters}')
+        kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
+        cluster_labels = kmeans.fit_predict(scaled_data)
+        for i, competitor in enumerate(scores_df.index):
+            st.write(f'{competitor} is in Cluster {cluster_labels[i]+1}')
+        # Save results for use in show_results
+        st.session_state.scaled_data = scaled_data
+        st.session_state.cluster_labels = cluster_labels
+        st.session_state.show_plot = True
         st.session_state['scores_df'] = scores_df.to_dict('list')  # Convert DataFrame to a dictionary for session state storage
-
-# Function to review and adjust variable scores
-def review_scores():
-    scores_df = pd.DataFrame(st.session_state['scores_df'])
-    st.write("Review and Adjust Variable Scores:")
-    st.write(scores_df)
-    if st.button('Proceed to Perform Clustering'):
-        st.session_state.current_screen = 'perform_clustering'
-
-# Function to perform clustering
-def perform_clustering():
-    scores_df = pd.DataFrame(st.session_state['scores_df'])
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(scores_df)
-    optimal_clusters = find_optimal_clusters(scaled_data)
-    st.write(f'Optimal number of clusters determined by elbow method: {optimal_clusters}')
-    kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
-    cluster_labels = kmeans.fit_predict(scaled_data)
-    for i, competitor in enumerate(scores_df.index):
-        st.write(f'{competitor} is in Cluster {cluster_labels[i]+1}')
-    # Save results for use in show_results
-    st.session_state.scaled_data = scaled_data
-    st.session_state.cluster_labels = cluster_labels
-    st.session_state.show_plot = True
-    st.session_state.current_screen = 'show_results'
+        st.session_state.current_screen = 'show_results'
+    # New button to proceed to visualization after reviewing clustering results
+    if st.session_state['show_plot']:
+        if st.button('Go to Plot Results'):
+            st.session_state['current_screen'] = 'show_results'
+            # No need for st.experimental_rerun() as we're controlling flow with session state
+    else:
+        st.info("Please enter scores for each competitor and perform clustering to view results.")
 
 # Function to display the results and plotting
 def show_results():
@@ -98,13 +105,14 @@ def show_results():
         
         scaled_data = np.array(st.session_state.scaled_data)
         cluster_labels = np.array(st.session_state.cluster_labels)
+        market_share = st.session_state.market_share  # Retrieve market share data
         
         if plot_choice == 'Use PCA to determine axes automatically':
             pca = PCA(n_components=2)
             principal_components = pca.fit_transform(scaled_data)
             fig, ax = plt.subplots()
-            scatter = ax.scatter(principal_components[:, 0], principal_components[:, 1], c=cluster_labels, cmap='viridis')
             for i, competitor in enumerate(st.session_state.competitors):
+                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=market_share[competitor] * 100, label=competitor)
                 ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
             st.pyplot(fig)
             
@@ -118,9 +126,9 @@ def show_results():
             x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
             y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
             fig, ax = plt.subplots()
-            scatter = ax.scatter(scores_df[x_var].astype(float), scores_df[y_var].astype(float), c=cluster_labels, cmap='viridis')
-            for competitor, x, y in zip(scores_df.index, scores_df[x_var], scores_df[y_var]):
-                ax.annotate(competitor, (x, y))
+            for competitor in st.session_state.competitors:
+                ax.scatter(scores_df[x_var][competitor], scores_df[y_var][competitor], s=market_share[competitor] * 100, label=competitor)
+                ax.annotate(competitor, (scores_df[x_var][competitor], scores_df[y_var][competitor]))
             st.pyplot(fig)
     else:
         st.error("Please go back and perform clustering first.")
@@ -128,11 +136,9 @@ def show_results():
 # App layout based on current screen
 if st.session_state.current_screen == 'enter_info':
     enter_info()
+elif st.session_state.current_screen == 'enter_market_share':
+    enter_market_share()
 elif st.session_state.current_screen == 'score_variables':
     score_variables()
-elif st.session_state.current_screen == 'review_scores':
-    review_scores()
-elif st.session_state.current_screen == 'perform_clustering':
-    perform_clustering()
 elif st.session_state.current_screen == 'show_results':
     show_results()
