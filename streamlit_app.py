@@ -29,16 +29,16 @@ def init_challenge_screen():
     # Using HTML to center the logo image
     st.markdown("""
         <div style="text-align: center;">
-            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="500">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="390">
         </div>
     """, unsafe_allow_html=True)
-    st.title("Addressing Your Most Pivotal Decisions for Sustainable Growth")
-    challenge_response = st.radio("How can addressing your most significant current challenge spark new growth?",
+    st.title("Your Four Move Advantage for Sustainable Growth")
+    challenge_response = st.radio("# How can addressing your most significant current challenge spark new growth?",
                                   options=[
-                                      "Are you looking to enter or expand market segments based on emerging customer needs and ability?",
-                                      "Do you need strategic guidance on competitive solution development to ensure market differentiation?",
-                                      "Have market segments been identified, but you need help deciding in which geos or industries to focus efforts?",
-                                      "Are you seeking to anticipate and prepare for all future scenarios that could impact your business?"
+                                      "PREDICT: Are you ready to enter or expand your reach into market segments where evolving customer needs align with your distinctive capabilities?",
+                                      "PROACT: Do you aim to craft standout solutions, distinguishing your competitive edge in product development uncharted white space?",
+                                      "PERFORM: With the best fit market segments identified, are you strategizing how to allocate your investments across geos and industries for maximum impact?",
+                                      "OUTPACE: Are you prepared to embed scenario planning into your growth strategies, securing a first-mover advantage in future-proofing against unforeseen shifts?"
                                   ], index=1, key='init_challenge')  # Default to the second option
 
     if st.button("Next"):
