@@ -40,6 +40,9 @@ def enter_info():
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     num_variables = st.number_input('Enter the number of variables:', min_value=1, value=10, step=1, key='num_variables')
     st.session_state['competitors'] = []
+    # Initialize 'revenue' key in session state if not present
+    if 'revenue' not in st.session_state:
+        st.session_state['revenue'] = {}
     for i in range(int(num_competitors)):
         competitor_name = st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_name_{i}')
         st.session_state['competitors'].append(competitor_name)
