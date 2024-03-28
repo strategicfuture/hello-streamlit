@@ -84,7 +84,6 @@ def show_results():
         st.session_state.current_screen = 'score_variables'
     
     if st.session_state.show_plot:
-        scores_df = pd.DataFrame(st.session_state['scores_df']).T  # Transpose because we stored it as competitors x variables
         scores_df.columns = st.session_state.variables  # Ensure columns match selected variables
         
         plot_choice = st.radio("How would you like to choose axes for plotting?",
