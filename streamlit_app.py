@@ -46,6 +46,12 @@ def init_challenge_screen():
             st.session_state.current_screen = 'enter_info'
         else:
             st.info("This demo is designed to spotlight PROACT strategies for developing standout competitive solutions. For a deeper dive and to continue this enriching conversation, please visit us at strategicforesight.ai")
+    # Using HTML to center the logo image
+    st.markdown("""
+        <div style="text-align: center;">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/usvsthem.jpg?raw=true" width="350">
+        </div>
+    """, unsafe_allow_html=True)
 
 
 # Function to find the optimal number of clusters using the elbow method
