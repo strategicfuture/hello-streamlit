@@ -284,13 +284,11 @@ def show_results():
     - ...and much more!
     """)
 
-    # Using HTML to center the logo image
+    # Using HTML to center the logo image and add space before the text
     st.markdown("""
-        <div style="text-align: center;">
-            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/10%20Hour%20Blueprint%20(1).png?raw=true" width="600" style="margin-bottom: 20px;>
-        </div>
-    """, unsafe_allow_html=True)
-
+    <div style="text-align: center;">
+        <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/10%20Hour%20Blueprint%20(1).png?raw=true" width="600" style="margin-bottom: 20px;">
+    </div> """, unsafe_allow_html=True)
 
     # Adding helper text about weighting variables
     st.markdown("""
