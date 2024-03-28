@@ -101,7 +101,7 @@ def enter_info():
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
     st.session_state.competitors = competitor_names
-    if st.button('Next to Enter Market Share'):
+    if st.button('Next to Enter Market Share', key='next_to_market_share_button'):
         st.session_state.current_screen = 'enter_market_share'
 
 def enter_market_share():
