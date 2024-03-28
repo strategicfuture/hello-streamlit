@@ -48,6 +48,8 @@ def enter_info():
 
 # Function to display the second screen for scoring variables
 def score_variables():
+    if st.button('Back to Enter Info'):
+        st.session_state.current_screen = 'enter_info'
     scores_df = pd.DataFrame(columns=st.session_state.variables)
     for competitor in st.session_state.competitors:
         if competitor:  # Only proceed if a name has been entered
@@ -72,6 +74,8 @@ def score_variables():
 
 # Function to display the results and plotting
 def show_results():
+    if st.button('Back to Score Variables'):
+        st.session_state.current_screen = 'score_variables'
     if st.session_state.show_plot:
         plot_choice = st.radio("How would you like to choose axes for plotting?", ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
         scaled_data = st.session_state.scaled_data
