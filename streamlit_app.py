@@ -102,6 +102,12 @@ def show_results():
             for i, competitor in enumerate(scores_df.index):
                 ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
             st.pyplot(fig)
+
+            # Display PCA component contributions
+            pca_contributions = pd.DataFrame(pca.components_, columns=scores_df.columns, index=['PC1', 'PC2']).T
+            pca_contributions.columns = ['PC1 Contribution', 'PC2 Contribution']
+            st.write("PCA Components' Contributions to Variables:")
+            st.dataframe(pca_contributions.style.format("{:.2}"))
             
         elif plot_choice == 'Manually select variables for axes':
             variable_options = st.session_state.variables
