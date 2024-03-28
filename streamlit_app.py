@@ -55,7 +55,7 @@ def enter_info():
     if st.button('Next to Score Variables'):
         st.session_state['current_screen'] = 'score_variables'
 
-    if st.button('Next to Score Variables'):
+    if st.button('Next to Score Variables', key='next_to_score_variables'):
         # Ensure competitors and their revenues are stored correctly
         st.session_state['competitors'] = [st.session_state.get(f'comp_{i}') for i in range(int(num_competitors))]
         st.session_state['current_screen'] = 'score_variables'
