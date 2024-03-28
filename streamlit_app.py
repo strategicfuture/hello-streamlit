@@ -50,7 +50,7 @@ def init_challenge_screen():
     st.markdown("""
         <div style="text-align: center;">
         <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/usvsthem.jpg?raw=true" width="350">
-        <p>Solution Development Atlas: K-Means Competitive Clustering Analysis</p>
+        <p>**PROACT: Solution Development Atlas: K-Means Competitive Clustering Analysis**</p>
     </div>
 """, unsafe_allow_html=True)
 
