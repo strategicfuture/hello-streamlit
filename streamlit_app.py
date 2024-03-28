@@ -82,11 +82,17 @@ def score_variables():
 def show_results():
     if st.button('Back to Score Variables'):
         st.session_state.current_screen = 'score_variables'
+    
     if st.session_state.show_plot:
-        scores_df = pd.DataFrame(st.session_state['scores_df'])
-        plot_choice = st.radio("How would you like to choose axes for plotting?", ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
-        scaled_data = st.session_state.scaled_data
-        cluster_labels = st.session_state.cluster_labels
+        scores_df = pd.DataFrame(st.session_state['scores_df']).T  # Transpose because we stored it as competitors x variables
+        scores_df.columns = st.session_state.variables  # Ensure columns match selected variables
+        
+        plot_choice = st.radio("How would you like to choose axes for plotting?",
+                               ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
+        
+        scaled_data = np.array(st.session_state.scaled_data)
+        cluster_labels = np.array(st.session_state.cluster_labels)
+        
         if plot_choice == 'Use PCA to determine axes automatically':
             pca = PCA(n_components=2)
             principal_components = pca.fit_transform(scaled_data)
@@ -95,16 +101,20 @@ def show_results():
             for i, competitor in enumerate(st.session_state.competitors):
                 ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
             st.pyplot(fig)
+            
+            # Display PCA component contributions
+            pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
+            st.write("PCA Components' Contributions to Variables:")
+            st.dataframe(pca_contributions.style.format("{:.2f}"))
+            
         elif plot_choice == 'Manually select variables for axes':
             variable_options = st.session_state.variables
             x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
             y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
-            # Convert scores back to DataFrame if they were stored as a dict in session state
-            scores_df = pd.DataFrame(st.session_state['scores_df'])
             fig, ax = plt.subplots()
             scatter = ax.scatter(scores_df[x_var].astype(float), scores_df[y_var].astype(float), c=cluster_labels, cmap='viridis')
-            # Annotate each point with the competitor's name
-            for competitor, x, y in zip(scores_df.index, scores_df[x_var], scores_df[y_var]):ax.annotate(competitor, (x, y))
+            for competitor, x, y in zip(scores_df.index, scores_df[x_var], scores_df[y_var]):
+                ax.annotate(competitor, (x, y))
             st.pyplot(fig)
     else:
         st.error("Please go back and perform clustering first.")
