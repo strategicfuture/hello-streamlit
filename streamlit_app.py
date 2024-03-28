@@ -139,19 +139,19 @@ def score_variables():
     st.markdown("""
         Evaluate each competitor on pivotal variables that can alter the competitive landscape—factors like innovation, customer engagement, and market expansion potential are just the beginning. This evaluation is more than just a scoring exercise; it's a strategic exploration into what makes a company stand out, compete, or even dominate.
 
-'**Game-Changers, Creating Advantage, Being Challenged, and Qualifiers:**"
+**Game-Changers, Creating Advantage, Being Challenged, and Qualifiers:**
 
-Game-Changers: These are variables that are not only highly differentiated today but will continue to be in the future. They have the power to create unparalleled competitive advantages and can fundamentally redefine the industry landscape. Pinpoint these factors to ensure your strategy is not just competitive, but dominant.
+**Game-Changers:** These are variables that are not only highly differentiated today but will continue to be in the future. They have the power to create unparalleled competitive advantages and can fundamentally redefine the industry landscape. Pinpoint these factors to ensure your strategy is not just competitive, but dominant.
 
-Creating Advantage: Variables that may not be highly differentiated today but are poised to become so in the future fall into this category. These are your hidden gems, opportunities to invest in now for significant payoff later. Identifying and nurturing these aspects can set you on a path to emerging as a leader in uncharted territories.
+**Creating Advantage:** Variables that may not be highly differentiated today but are poised to become so in the future fall into this category. These are your hidden gems, opportunities to invest in now for significant payoff later. Identifying and nurturing these aspects can set you on a path to emerging as a leader in uncharted territories.
 
-Being Challenged: Highly differentiated today but at risk of becoming less so tomorrow, these variables signal areas where your current strengths might erode. Recognizing them early is crucial for strategic adaptability, allowing you to pivot or bolster these areas to maintain your competitive edge.
+**Being Challenged:** Highly differentiated today but at risk of becoming less so tomorrow, these variables signal areas where your current strengths might erode. Recognizing them early is crucial for strategic adaptability, allowing you to pivot or bolster these areas to maintain your competitive edge.
 
-Qualifiers: Essential for just staying in the game, these variables represent baseline expectations in the industry—lowly differentiated today and tomorrow. While they might not be your leading strategic focus, neglecting them can put you at a disadvantage. Ensure you meet these industry standards even as you strive for distinction elsewhere.
+**Qualifiers:** Essential for just staying in the game, these variables represent baseline expectations in the industry—lowly differentiated today and tomorrow. While they might not be your leading strategic focus, neglecting them can put you at a disadvantage. Ensure you meet these industry standards even as you strive for distinction elsewhere.
 
-'**Balancing Internal and External Factors:**' Consider variables from two lenses—internal capabilities such as operational efficiency, technology innovation, and team expertise, and external forces like market trends, customer needs, and regulatory changes. How these factors intersect will guide your strategic focus.
+**Balancing Internal and External Factors:** Consider variables from two lenses—internal capabilities such as operational efficiency, technology innovation, and team expertise, and external forces like market trends, customer needs, and regulatory changes. How these factors intersect will guide your strategic focus.
 
-'**Weighting for Impact:**' Not all variables carry equal weight in determining success. Assign weightings that reflect their potential to drive your competitive advantage. Think critically about how shifts in these variables could impact your positioning and strategy.
+**Weighting for Impact:** Not all variables carry equal weight in determining success. Assign weightings that reflect their potential to drive your competitive advantage. Think critically about how shifts in these variables could impact your positioning and strategy.
     """)
     # Assuming the number of variables has already been set and is consistent
     num_variables = st.number_input('Enter the number of variables:', min_value=1, value=len(st.session_state.variables) if 'variables' in st.session_state and st.session_state.variables else 3, step=1, key='num_variables_setup')
