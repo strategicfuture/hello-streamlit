@@ -39,29 +39,12 @@ def find_optimal_clusters(data):
 def enter_info():
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     num_variables = st.number_input('Enter the number of variables:', min_value=1, value=10, step=1, key='num_variables')
-    st.session_state['competitors'] = []
-    # Initialize 'revenue' key in session state if not present
-    if 'revenue' not in st.session_state:
-        st.session_state['revenue'] = {}
-    for i in range(int(num_competitors)):
-        competitor_name = st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_name_{i}')
-        st.session_state['competitors'].append(competitor_name)
-        revenue = st.slider(f'Estimate revenue for {competitor_name} (if applicable):', 0, 10000000000, 100000000, step=100000000, key=f'revenue_{i}')
-        st.session_state['revenue'][competitor_name] = revenue
-
-    variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(int(num_variables))]
-    st.session_state['variables'] = variables
-
-
-    if st.button('Next to Score Variables'):
-        # Ensure competitors and their revenues are stored correctly
-        st.session_state['competitors'] = [st.session_state.get(f'comp_{i}') for i in range(int(num_competitors))]
-        st.session_state['current_screen'] = 'score_variables'
     competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
     st.session_state.competitors = competitor_names
     variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(num_variables)]
     st.session_state.variables = variables
-
+    if st.button('Next to Score Variables'):
+        st.session_state.current_screen = 'score_variables'
 
 # Function to display the second screen for scoring variables
 def score_variables():
