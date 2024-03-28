@@ -78,7 +78,7 @@ def score_variables():
     else:
         st.info("Please enter scores for each competitor and perform clustering to view results.")
 
-ef show_results():
+def show_results():
     if st.button('Back to Score Variables'):
         st.session_state.current_screen = 'score_variables'
     
