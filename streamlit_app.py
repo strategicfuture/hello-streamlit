@@ -60,34 +60,44 @@ def enter_market_share():
 def score_variables():
     if st.button('Back to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
-    num_variables = st.number_input('Enter the number of variables:', min_value=1, value=10, step=1, key='num_variables')
-    variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(num_variables)]
+    num_variables = st.number_input('Enter the number of variables:', min_value=1, value=len(st.session_state.variables) if 'variables' in st.session_state and st.session_state.variables else 3, step=1, key='num_variables')
+    variables = [st.text_input(f'Enter name for Variable {i+1}: ', value=st.session_state.variables[i] if 'variables' in st.session_state and i < len(st.session_state.variables) else '', key=f'var_{i}') for i in range(num_variables)]
     st.session_state.variables = variables
     
-    # Check if variables have been named before showing sliders
-    if len(variables) == num_variables and all(variables):  # Ensure all variable names are entered
-        scores_df = pd.DataFrame(columns=variables)
-        for competitor in st.session_state.competitors:
-            if competitor:  # Only proceed if a name has been entered
-                scores = [st.slider(f'Enter score for {competitor} - {variable}: ', min_value=0.0, max_value=1.0, value=0.5, key=f'{competitor}_{variable}') for variable in variables]
-                scores_df.loc[competitor] = scores
-        # "Score and Analyze" button to trigger analysis and move to results
-        if st.button('Score and Analyze'):
-            # Perform scaling and clustering
-            scaler = StandardScaler()
-            scaled_data = scaler.fit_transform(scores_df)
-            optimal_clusters = find_optimal_clusters(scaled_data)
-            kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
-            cluster_labels = kmeans.fit_predict(scaled_data)
+    # Initiate an empty DataFrame to collect scores
+    scores_df = pd.DataFrame(index=st.session_state.competitors, columns=st.session_state.variables)
+    
+    # Flag to track if all scores have been input
+    all_scores_entered = True
+    
+    # Iterate over competitors and variables to display sliders for scoring
+    for competitor in st.session_state.competitors:
+        for variable in st.session_state.variables:
+            if competitor and variable:  # Ensure both competitor and variable names have been entered
+                score_key = f'{competitor}_{variable}'
+                score = st.slider(f'Rate {competitor} for {variable}:', 0.0, 1.0, 0.5, key=score_key)
+                scores_df.at[competitor, variable] = score
+            else:
+                all_scores_entered = False
+    
+    # Only display the "Score and Analyze" button if all scores have been input
+    if all_scores_entered and st.button('Score and Analyze'):
+        # Perform scaling
+        scaler = StandardScaler()
+        scaled_data = scaler.fit_transform(scores_df.fillna(0))  # Fill any missing values with 0
+        optimal_clusters = find_optimal_clusters(scaled_data)
+        kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
+        cluster_labels = kmeans.fit_predict(scaled_data)
+        
+        # Save results for use in show_results
+        st.session_state.scaled_data = scaled_data
+        st.session_state.cluster_labels = cluster_labels
+        st.session_state.show_plot = True
+        st.session_state.scores_df = scores_df.to_dict('list')  # Convert DataFrame to dictionary for session state storage
+        st.session_state.current_screen = 'show_results'
+    elif not all_scores_entered:
+        st.warning('Please enter names for all competitors and variables.')
 
-            # Save results for use in show_results
-            st.session_state.scaled_data = scaled_data
-            st.session_state.cluster_labels = cluster_labels
-            st.session_state.show_plot = True
-            st.session_state['scores_df'] = scores_df.to_dict('list')  # Convert DataFrame to a dictionary for session state storage
-            st.session_state.current_screen = 'show_results'
-    else:
-        st.info("Please enter names for all variables before scoring.")
 
 
 # Function to display the results and plotting
