@@ -33,7 +33,7 @@ def init_challenge_screen():
         </div>
     """, unsafe_allow_html=True)
     st.title("Your Four Move Advantage for Sustainable Growth")
-    challenge_response = st.radio("# How can addressing your most significant current challenge spark new growth?",
+    challenge_response = st.radio("## How can addressing your most significant current challenge spark new growth?",
                                   options=[
                                       "PREDICT: Are you ready to enter or expand your reach into market segments where evolving customer needs align with your distinctive capabilities?",
                                       "PROACT: Do you aim to craft standout solutions, distinguishing your competitive edge in product development uncharted white space?",
