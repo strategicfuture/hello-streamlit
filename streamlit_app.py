@@ -52,7 +52,9 @@ def init_challenge_screen():
             <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/usvsthem.jpg?raw=true" width="350">
         </div>
     """, unsafe_allow_html=True)
-
+    st.markdown("""
+        Solution Development Atlas: K-Means Competitive Clustering Analysis
+    """)
 
 # Function to find the optimal number of clusters using the elbow method
 def find_optimal_clusters(data):
