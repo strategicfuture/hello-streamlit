@@ -41,9 +41,9 @@ def init_challenge_screen():
                                       "OUTPACE: Are you prepared to embed scenario planning into your growth strategies, securing a first-mover advantage in future-proofing against unforeseen shifts?"
                                   ], index=1, key='init_challenge')  # Default to the second option
 
-    if st.button("Next"):
+    if st.button("Next", on_click=set_next_screen):
         if challenge_response.startswith("PROACT"):
-            st.button('Next', on_click=enter_info, args=['enter_info'])
+            st.session_state.current_screen = 'enter_info'
         else:
             st.info("This demo is designed to spotlight PROACT strategies for developing standout competitive solutions. For a deeper dive and to continue this enriching conversation, please visit us at strategicforesight.ai")
     # Using HTML to center the logo image
@@ -53,6 +53,17 @@ def init_challenge_screen():
         <p><b>PROACT: Solution Development Atlas: K-Means Competitive Clustering Analysis</b></p>
     </div>
 """, unsafe_allow_html=True)
+    
+def set_next_screen():
+    challenge_response = st.session_state.init_challenge
+    if challenge_response.startswith("PROACT"):
+        st.session_state.current_screen = 'enter_info'
+    else:
+        st.session_state['message'] = "This demo is designed to spotlight PROACT strategies for developing standout competitive solutions. For a deeper dive and to continue this enriching conversation, please visit us at strategicforesight.ai"
+
+def go_to_start():
+    st.session_state.current_screen = 'init_challenge'
+
 
 # Function to find the optimal number of clusters using the elbow method
 def find_optimal_clusters(data):
