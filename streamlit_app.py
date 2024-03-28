@@ -6,6 +6,8 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
 
+logo_url = "https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20App%20Logo.png?raw=true"
+
 # Initialize session state variables if not already present
 if 'competitors' not in st.session_state:
     st.session_state.competitors = []
@@ -26,7 +28,7 @@ if 'cluster_labels' not in st.session_state:
 
 # New initial challenge screen function
 def init_challenge_screen():
-    st.title("Addressing Your Most Pivotal Decisions for New Growth with Strategic Foresight")
+    st.title("Addressing Your Most Pivotal Decisions for Sustainable Growth")
     challenge_response = st.radio("How can addressing your most significant current challenge spark new growth?",
                                   options=[
                                       "Are you looking to enter or expand market segments based on emerging customer needs and ability?",
@@ -195,7 +197,7 @@ def show_results():
     
     # Provide the URL to the subscription page
     subscription_url = "https://mailchi.mp/strategicforesight/growth-solutions"
-    st.markdown(f"[### Download Now]({subscription_url})", unsafe_allow_html=True)
+    st.markdown(f"[Download Now]({subscription_url})", unsafe_allow_html=True)
 
     # Optionally, offer more context or a teaser of what they'll learn
     st.markdown("### This white paper will equip you with our 4 move advantage to:")
