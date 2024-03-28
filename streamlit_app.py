@@ -42,7 +42,7 @@ def init_challenge_screen():
                                   ], index=1, key='init_challenge')  # Default to the second option
 
     if st.button("Next"):
-        if challenge_response.startswith("Do you aim to"):
+        if challenge_response.startswith("PROACT"):
             st.session_state.current_screen = 'enter_info'
         else:
             st.info("This demo is designed to spotlight PROACT strategies for developing standout competitive solutions. For a deeper dive and to continue this enriching conversation, please visit us at strategicforesight.ai")
