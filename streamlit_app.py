@@ -46,7 +46,7 @@ def enter_info():
     if st.button('Next to Score Variables'):
         st.session_state.current_screen = 'score_variables'
 
-# Function to display the screen for scoring variables
+# Function to display the second screen for scoring variables
 def score_variables():
     if st.button('Back to Enter Info'):
         st.session_state.current_screen = 'enter_info'
@@ -59,25 +59,16 @@ def score_variables():
         st.session_state.current_screen = 'review_scores'
         st.session_state['scores_df'] = scores_df.to_dict('list')  # Convert DataFrame to a dictionary for session state storage
 
-# Function to display the screen for reviewing and adjusting variable scores
+# Function to review and adjust variable scores
 def review_scores():
-    if st.button('Back to Score Variables'):
-        st.session_state.current_screen = 'score_variables'
-    
-    if 'scores_df' in st.session_state:
-        scores_df = pd.DataFrame(st.session_state['scores_df'])
-        st.write('Review and Adjust Variable Scores:')
-        st.write(scores_df)
-        if st.button('Proceed to Perform Clustering'):
-            st.session_state.current_screen = 'perform_clustering'
-    else:
-        st.error("No variable scores found. Please go back and perform variable scoring.")
+    scores_df = pd.DataFrame(st.session_state['scores_df'])
+    st.write("Review and Adjust Variable Scores:")
+    st.write(scores_df)
+    if st.button('Proceed to Perform Clustering'):
+        st.session_state.current_screen = 'perform_clustering'
 
-# Function to display the screen for performing k-means clustering
+# Function to perform clustering
 def perform_clustering():
-    if st.button('Back to Review Scores'):
-        st.session_state.current_screen = 'review_scores'
-    
     scores_df = pd.DataFrame(st.session_state['scores_df'])
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(scores_df)
@@ -95,8 +86,8 @@ def perform_clustering():
 
 # Function to display the results and plotting
 def show_results():
-    if st.button('Back to Review Scores'):
-        st.session_state.current_screen = 'review_scores'
+    if st.button('Back to Score Variables'):
+        st.session_state.current_screen = 'score_variables'
     
     if st.session_state.show_plot:
         scores_df = pd.DataFrame(st.session_state['scores_df']) 
