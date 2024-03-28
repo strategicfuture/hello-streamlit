@@ -70,6 +70,11 @@ def score_variables():
         st.session_state.show_plot = True
         st.session_state['scores_df'] = scores_df.to_dict('list')  # Convert DataFrame to a dictionary for session state storage
         st.session_state.current_screen = 'show_results'
+    # New button to proceed to visualization after reviewing clustering results
+    if st.session_state['show_plot']:
+        if st.button('Go to Plot Results'):
+            st.session_state['current_screen'] = 'show_results'
+            # No need for st.experimental_rerun() as we're controlling flow with session state
     else:
         st.info("Please enter scores for each competitor and perform clustering to view results.")
 
