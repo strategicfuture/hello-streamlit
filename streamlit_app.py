@@ -56,7 +56,7 @@ def enter_market_share():
     if st.button('Next to Score Variables'):
         st.session_state.current_screen = 'score_variables'
 
-# Updated function to display the second screen for scoring variables
+# Function to display the second screen for scoring variables
 def score_variables():
     if st.button('Back to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
@@ -64,28 +64,31 @@ def score_variables():
     variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(num_variables)]
     st.session_state.variables = variables
     
-    # Moved the data collection and K-Means clustering into this conditional block
-    if st.button('Score and Analyze'):
-        scores_df = pd.DataFrame(columns=st.session_state.variables)
+    # Check if variables have been named before showing sliders
+    if len(variables) == num_variables and all(variables):  # Ensure all variable names are entered
+        scores_df = pd.DataFrame(columns=variables)
         for competitor in st.session_state.competitors:
             if competitor:  # Only proceed if a name has been entered
-                scores = [st.slider(f'Enter score for {competitor} - {variable}: ', min_value=0.0, max_value=1.0, value=0.5, key=f'{competitor}_{variable}') for variable in st.session_state.variables]
+                scores = [st.slider(f'Enter score for {competitor} - {variable}: ', min_value=0.0, max_value=1.0, value=0.5, key=f'{competitor}_{variable}') for variable in variables]
                 scores_df.loc[competitor] = scores
-        scaler = StandardScaler()
-        scaled_data = scaler.fit_transform(scores_df)
-        optimal_clusters = find_optimal_clusters(scaled_data)
-        kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
-        cluster_labels = kmeans.fit_predict(scaled_data)
-        
-        # Save results for use in show_results
-        st.session_state.scaled_data = scaled_data
-        st.session_state.cluster_labels = cluster_labels
-        st.session_state.show_plot = True
-        st.session_state['scores_df'] = scores_df.to_dict('list')  # Convert DataFrame to a dictionary for session state storage
-        st.session_state.current_screen = 'show_results'
-    
+        # "Score and Analyze" button to trigger analysis and move to results
+        if st.button('Score and Analyze'):
+            # Perform scaling and clustering
+            scaler = StandardScaler()
+            scaled_data = scaler.fit_transform(scores_df)
+            optimal_clusters = find_optimal_clusters(scaled_data)
+            kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
+            cluster_labels = kmeans.fit_predict(scaled_data)
+
+            # Save results for use in show_results
+            st.session_state.scaled_data = scaled_data
+            st.session_state.cluster_labels = cluster_labels
+            st.session_state.show_plot = True
+            st.session_state['scores_df'] = scores_df.to_dict('list')  # Convert DataFrame to a dictionary for session state storage
+            st.session_state.current_screen = 'show_results'
     else:
-        st.info("Please enter scores for each competitor and click 'Score and Analyze' to proceed.")
+        st.info("Please enter names for all variables before scoring.")
+
 
 # Function to display the results and plotting
 def show_results():
