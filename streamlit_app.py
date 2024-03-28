@@ -24,6 +24,24 @@ if 'scaled_data' not in st.session_state:
 if 'cluster_labels' not in st.session_state:
     st.session_state.cluster_labels = None
 
+# New initial challenge screen function
+def init_challenge_screen():
+    st.title("Addressing Your Challenge for New Growth")
+    challenge_response = st.radio("How can addressing your most significant current challenge spark new growth?",
+                                  options=[
+                                      "Are you looking to enter or expand market segments based on emerging customer needs and ability?",
+                                      "Do you need strategic guidance on competitive solution development to ensure market differentiation?",
+                                      "Have market segments been identified, but you need help deciding in which geos or industries to focus efforts?",
+                                      "Are you seeking to anticipate and prepare for all future scenarios that could impact your business?"
+                                  ], index=1, key='init_challenge')  # Default to the second option
+
+    if st.button("Next"):
+        if challenge_response.startswith("Do you need strategic guidance"):
+            st.session_state.current_screen = 'enter_info'
+        else:
+            st.info("This demo focuses on strategic guidance for competitive solution development. Please proceed to explore.")
+
+
 # Function to find the optimal number of clusters using the elbow method
 def find_optimal_clusters(data):
     inertias = []
@@ -171,7 +189,9 @@ def show_results():
         st.error("Please go back and perform clustering first.")
 
 # App layout based on current screen
-if st.session_state.current_screen == 'enter_info':
+if st.session_state.current_screen == 'init_challenge':
+    init_challenge_screen()
+elif st.session_state.current_screen == 'enter_info':
     enter_info()
 elif st.session_state.current_screen == 'enter_market_share':
     enter_market_share()
