@@ -287,7 +287,7 @@ def show_results():
     # Using HTML to center the logo image
     st.markdown("""
         <div style="text-align: center;">
-            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/10%20Hour%20Blueprint%20(1).png?raw=true" width="600">
+            <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/10%20Hour%20Blueprint%20(1).png?raw=true" width="600" style="margin-bottom: 20px;>
         </div>
     """, unsafe_allow_html=True)
 
