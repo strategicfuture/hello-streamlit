@@ -188,9 +188,6 @@ def show_results():
     else:
         st.error("Please go back and perform clustering first.")
 
-    st.write("Subscribe to our email list to export the results.")
-    user_email = st.text_input("Enter your email address:", key="user_email")
-    subscribed = st.checkbox("I agree to subscribe to the email list.", key="subscribed")
 
   # Subscription Call-to-Action
     st.markdown("Download White Paper")
@@ -201,11 +198,11 @@ def show_results():
     st.markdown(f"[Download Now]({subscription_url})", unsafe_allow_html=True)
 
     # Optionally, offer more context or a teaser of what they'll learn
-    st.markdown("This course will equip you with the tools and knowledge to:")
+    st.markdown("This white paper will equip you with our 4 move advantage to:")
     st.markdown("""
-    - Anticipate market trends and competitor movements
-    - Innovate proactively, creating market-leading products and services
-    - Navigate and leverage emerging opportunities
+    - Outmaneuever competitors
+    - Outperform markets
+    - Outserve customers
     - ...and much more!
     """)
 
