@@ -41,11 +41,14 @@ def init_challenge_screen():
                                       "OUTPACE: Are you prepared to embed scenario planning into your growth strategies, securing a first-mover advantage in future-proofing against unforeseen shifts?"
                                   ], index=1, key='init_challenge')  # Default to the second option
 
-    if st.button("Next"):
-        if challenge_response.startswith("PROACT"):
-            st.session_state.current_screen = 'enter_info'
-        else:
-            st.info("This demo is designed to spotlight PROACT strategies for developing standout competitive solutions. For a deeper dive and to continue this enriching conversation, please visit us at strategicforesight.ai")
+    if challenge_response.startswith("PROACT"):
+        st.session_state.current_screen = 'enter_info'
+    else:
+        st.info("This demo is designed to spotlight PROACT strategies for developing standout competitive solutions. For a deeper dive and to continue this enriching conversation, please visit us at strategicforesight.ai")
+
+    if st.button("Next") and challenge_response.startswith("PROACT"):
+        st.session_state.current_screen = 'enter_info'
+        
     # Using HTML to center the logo image
     st.markdown("""
         <div style="text-align: center;">
@@ -101,6 +104,7 @@ def enter_info():
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     competitor_names = [st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}') for i in range(num_competitors)]
     st.session_state.competitors = competitor_names
+    
     if st.button('Next to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
 
@@ -122,6 +126,7 @@ def enter_market_share():
         if competitor:
             market_share = st.number_input(f'Enter market share for {competitor} (%): ', min_value=0, max_value=100, key=f'market_share_{competitor}')
             st.session_state.market_share[competitor] = market_share
+            
     if st.button('Next to Score Variables'):
         st.session_state.current_screen = 'score_variables'
 
@@ -221,109 +226,45 @@ def show_results():
     if st.session_state.show_plot:
         scores_df = pd.DataFrame(st.session_state['scores_df'])
         scores_df.columns = st.session_state.variables
+        scores_df.index = st.session_state.competitors
         
-        num_clusters = np.unique(st.session_state.cluster_labels).size
-        st.write(f"Number of clusters: {num_clusters}")
-        for i, competitor in enumerate(st.session_state.competitors):
-            st.write(f"{competitor} is in Cluster {st.session_state.cluster_labels[i]+1}")
+        pca = PCA(n_components=2)
+        pca_data = pca.fit_transform(st.session_state.scaled_data)
+        pca_df = pd.DataFrame(pca_data, columns=['PCA1', 'PCA2'], index=scores_df.index)
+        pca_df['Cluster'] = st.session_state.cluster_labels
 
-        plot_choice = st.radio("How would you like to choose axes for plotting?", ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
-        
-        scaled_data = np.array(st.session_state.scaled_data)
-        cluster_labels = np.array(st.session_state.cluster_labels)
-        market_share = st.session_state.market_share
-        
-        if plot_choice == 'Use PCA to determine axes automatically':
-            pca = PCA(n_components=2)
-            principal_components = pca.fit_transform(scaled_data)
-            fig, ax = plt.subplots()
-            for i, competitor in enumerate(st.session_state.competitors):
-                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=market_share[competitor] * 100, label=competitor)
-                ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
-            st.pyplot(fig)
-            
-            pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
-            st.write("PCA Components' Contributions to Variables:")
-            st.dataframe(pca_contributions.style.format("{:.2f}"))
-            
-        elif plot_choice == 'Manually select variables for axes':
-            try:
-                variable_options = st.session_state.variables
-                x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
-                y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
-                fig, ax = plt.subplots()
-                for competitor in st.session_state.competitors:
-                    x_score = scores_df.loc[competitor, x_var]
-                    y_score = scores_df.loc[competitor, y_var]
-                    market_size = market_share[competitor] * 100
-                    ax.scatter(x_score, y_score, s=market_size, label=competitor)
-                    ax.annotate(competitor, (x_score, y_score))
-                st.pyplot(fig)
-            except KeyError as e:
-                st.error(f"An error occurred due to too much convergence among the selected axes or missing data: {e}. Please reconsider the variables chosen for axes or ensure all competitors and variables have been scored.")
-            except Exception as e:
-                st.error(f"An unexpected error occurred: {e}. Please check your data and selections.")
-    else:
-        st.error("Please go back and perform clustering first.")
-
-  # Subscription Call-to-Action
-    st.markdown("### Download White Paper")
-    st.markdown("10X Market Impact in 10 Hours with World-Class Foresight")
+        plt.figure(figsize=(12, 8))
+        for cluster in np.unique(st.session_state.cluster_labels):
+            plt.scatter(pca_df.loc[pca_df['Cluster'] == cluster, 'PCA1'],
+                        pca_df.loc[pca_df['Cluster'] == cluster, 'PCA2'],
+                        label=f'Cluster {cluster}')
+        plt.xlabel('Principal Component 1')
+        plt.ylabel('Principal Component 2')
+        plt.title('Competitor Clustering Analysis')
+        plt.legend()
+        st.pyplot()
     
-    # Provide the URL to the subscription page
-    subscription_url = "https://mailchi.mp/strategicforesight/growth-solutions"
-    st.markdown(f"[Download Now]({subscription_url})", unsafe_allow_html=True)
-
-    # Optionally, offer more context or a teaser of what they'll learn
-    st.markdown("### This white paper will equip you with our 4 move advantage to:")
+    st.header('Cluster Analysis Results')
+    st.subheader('Variable Importance and Cluster Analysis')
     st.markdown("""
-    - Outmaneuever competitors
-    - Outperform markets
-    - Outserve customers
-    - ...and much more!
-    """)
+        <div style="text-align: justify;">
+            <p>What you see below is the result of your strategic analysis. Each competitor has been evaluated based on pivotal variables that shape the competitive landscape. Scores have been weighted to reflect their impact on your strategic advantage. The analysis is then distilled into clusters, identifying groups of competitors with similar competitive profiles. This clustering reveals strategic insights into where you stand relative to the competition and how you can craft standout solutions that give you a four-move advantage for sustainable growth.</p>
+        </div>
+    """, unsafe_allow_html=True)
 
-    # Using HTML to center the logo image and add space before the text
-    st.markdown("""
-    <div style="text-align: center;">
-        <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/10%20Hour%20Blueprint%20(1).png?raw=true" width="600" style="margin-bottom: 20px;">
-    </div> """, unsafe_allow_html=True)
+    st.table(st.session_state.scores_df)
 
-    # Adding helper text about weighting variables
-    st.markdown("""
-    <div style="text-align: justify;">
-        <p><strong><b>Reflection Questions:</b></strong> 
-                
-<b>Strategic Positioning:</b> How does your company's position on the map reflect your current competitive advantage? Are there variables where you lead, and how sustainable are these advantages?
+# Mapping screen functions to screen names
+screens = {
+    'init_challenge': init_challenge_screen,
+    'enter_info': enter_info,
+    'enter_market_share': enter_market_share,
+    'score_variables': score_variables,
+    'show_results': show_results
+}
 
-<b>Emerging Opportunities:</b> Based on the plot, which emerging opportunities can your company uniquely capitalize on? How can you leverage these to redefine or expand your market presence?
-
-<b>Future Differentiation:</b> Which variables are likely to become more critical for differentiation in the future? How can your company proactively develop capabilities or solutions in these areas?
-
-<b>Adaptability to Change:</b> Considering potential industry shifts highlighted by the map, how adaptable is your current strategy? What changes might you need to consider to remain competitive or become a leader?
-
-<b>Innovation and Disruption:</b> Are there areas ripe for innovation or disruption where you can challenge established competitors or create new value for customers?
-
-<b>Resource Allocation:</b> How should your findings from the map influence the allocation of your resources (time, talent, capital) towards areas of high strategic importance?
-
-<b>Collaboration and Partnership:</b> Could collaborations or partnerships enhance your positioning on certain variables or accelerate your path to leadership?
-
-<b>Potential Threats:</b> Which companies positioned closely to you pose the most significant threats, and why? How can you monitor these competitors and prepare for possible strategic moves they might make?
-
-<b>Blind Spots:</b> Were there any surprises or “blind spots” revealed by the strategic group map? How can your company address these gaps in perception or strategy?
-
-<b>Long-term Vision:</b> How does your positioning align with your company's long-term vision and goals? What strategic shifts might you need to consider to ensure alignment and success in the future?</p>
-    </div> """, unsafe_allow_html=True)
-
-# App layout based on current screen
-if st.session_state.current_screen == 'init_challenge':
-    init_challenge_screen()
-elif st.session_state.current_screen == 'enter_info':
-    enter_info()
-elif st.session_state.current_screen == 'enter_market_share':
-    enter_market_share()
-elif st.session_state.current_screen == 'score_variables':
-    score_variables()
-elif st.session_state.current_screen == 'show_results':
-    show_results()
-
+# Main application logic
+if st.session_state.current_screen in screens:
+    screens[st.session_state.current_screen]()
+else:
+    st.error('Invalid screen state encountered.')
