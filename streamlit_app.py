@@ -78,19 +78,24 @@ def score_variables():
     else:
         st.info("Please enter scores for each competitor and perform clustering to view results.")
 
-# Function to display the results and plotting
 def show_results():
     if st.button('Back to Score Variables'):
         st.session_state.current_screen = 'score_variables'
     
     if st.session_state.show_plot:
+        # Attempt to reconstruct scores_df with a check for column alignment
+        scores_df_dict = st.session_state['scores_df']
         try:
-            # Reconstruct scores_df from scores_df_dict
-            scores_df_dict = st.session_state['scores_df']
-            scores_df = pd.DataFrame(scores_df_dict).T  # Transpose to ensure correct orientation
-            if len(scores_df.columns) != len(st.session_state.variables):
-                scores_df.columns = st.session_state.variables[:len(scores_df.columns)]  # Ensure column names match selected variables, up to the actual number of columns in scores_df
-            scores_df.index = st.session_state.competitors  # Reset index to competitor names
+            scores_df = pd.DataFrame.from_dict(scores_df_dict, orient='index')
+            if scores_df.shape[1] == len(st.session_state.variables):
+                scores_df.columns = st.session_state.variables
+            else:
+                st.error("Mismatch between selected variables and stored scores.")
+                return
+            scores_df.index = st.session_state.competitors  # Ensure competitors are set as index
+        except Exception as e:
+            st.error(f"An error occurred while reconstructing scores DataFrame: {e}")
+            return
 
             plot_choice = st.radio("How would you like to choose axes for plotting?",
                                    ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
