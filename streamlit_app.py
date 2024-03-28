@@ -41,7 +41,7 @@ def init_challenge_screen():
                                       "OUTPACE: Are you prepared to embed scenario planning into your growth strategies, securing a first-mover advantage in future-proofing against unforeseen shifts?"
                                   ], index=1, key='init_challenge')  # Default to the second option
 
-    if st.button("Next"):
+    if st.button('Next', key='next_button'):
         if challenge_response.startswith("PROACT"):
             st.session_state.current_screen = 'enter_info'
         else:
