@@ -16,7 +16,7 @@ if 'variable_weights' not in st.session_state:
 if 'market_share' not in st.session_state:
     st.session_state.market_share = {}  # Initialize market share dictionary
 if 'current_screen' not in st.session_state:
-    st.session_state.current_screen = 'enter_info'
+    st.session_state.current_screen = 'init_challenge'
 if 'show_plot' not in st.session_state:
     st.session_state.show_plot = False
 if 'scaled_data' not in st.session_state:
