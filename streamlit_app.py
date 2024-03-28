@@ -39,13 +39,18 @@ def find_optimal_clusters(data):
 def enter_info():
     num_competitors = st.number_input('Enter the number of competitors:', min_value=1, value=3, step=1, key='num_competitors')
     num_variables = st.number_input('Enter the number of variables:', min_value=1, value=10, step=1, key='num_variables')
-    # Input fields for competitor names and revenue estimation
-    for i in range(int(num_competitors)):
-        competitor_name = st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_{i}')
-        if competitor_name:  # Proceed only if a name has been entered
-            # Add a slider for revenue estimation for each competitor
-            revenue = st.slider(f'Estimate revenue for {competitor_name}:', 0, 100000000000, 50000000, key=f'revenue_{competitor_name}')
-            st.session_state.revenue[competitor_name] = revenue
+    st.session_state['competitors'] = []
+        for i in range(int(num_competitors)):
+        competitor_name = st.text_input(f'Enter name for Competitor {i+1}: ', key=f'comp_name_{i}')
+        st.session_state['competitors'].append(competitor_name)
+        revenue = st.slider(f'Estimate revenue for {competitor_name} (if applicable):', 0, 10000000000, 100000000, step=100000000, key=f'revenue_{i}')
+        st.session_state['revenue'][competitor_name] = revenue
+
+    variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(int(num_variables))]
+    st.session_state['variables'] = variables
+
+    if st.button('Next to Score Variables'):
+        st.session_state['current_screen'] = 'score_variables'
 
     if st.button('Next to Score Variables'):
         # Ensure competitors and their revenues are stored correctly
