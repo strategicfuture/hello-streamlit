@@ -99,6 +99,8 @@ def show_results():
             variable_options = st.session_state.variables
             x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
             y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
+            # Convert scores back to DataFrame if they were stored as a dict in session state
+            scores_df = pd.DataFrame(st.session_state['scores_df'])
             fig, ax = plt.subplots()
             scatter = ax.scatter(scores_df[x_var].astype(float), scores_df[y_var].astype(float), c=cluster_labels, cmap='viridis')
             for i, competitor in enumerate(scores_df.index):
