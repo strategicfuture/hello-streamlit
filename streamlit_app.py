@@ -131,16 +131,23 @@ def show_results():
             st.dataframe(pca_contributions.style.format("{:.2f}"))
             
         elif plot_choice == 'Manually select variables for axes':
-            variable_options = st.session_state.variables
-            x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
-            y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
-            fig, ax = plt.subplots()
-            for competitor in st.session_state.competitors:
-                ax.scatter(scores_df[x_var][competitor], scores_df[y_var][competitor], s=market_share[competitor] * 100, label=competitor)
-                ax.annotate(competitor, (scores_df[x_var][competitor], scores_df[y_var][competitor]))
-            st.pyplot(fig)
-    else:
-        st.error("Please go back and perform clustering first.")
+            try:
+                variable_options = st.session_state.variables
+                x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
+                y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
+                fig, ax = plt.subplots()
+                # Iterate over each competitor for plotting
+                for competitor in st.session_state.competitors:
+                    x_score = scores_df.loc[competitor, x_var]  # Ensure scores_df is indexed by competitor
+                    y_score = scores_df.loc[competitor, y_var]
+                    market_size = market_share[competitor] * 100  # Adjust size by market share
+                    ax.scatter(x_score, y_score, s=market_size, label=competitor)
+                    ax.annotate(competitor, (x_score, y_score))
+                st.pyplot(fig)
+            except KeyError as e:
+                st.error(f"An error occurred due to too much convergence among the selected axes or missing data: {e}. Please reconsider the variables chosen for axes or ensure all competitors and variables have been scored.")
+            except Exception as e:  # Catch-all for other potential errors
+                st.error(f"An unexpected error occurred: {e}. Please check your data and selections.")
 
 # App layout based on current screen
 if st.session_state.current_screen == 'enter_info':
