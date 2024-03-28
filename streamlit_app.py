@@ -26,7 +26,7 @@ if 'cluster_labels' not in st.session_state:
 
 # New initial challenge screen function
 def init_challenge_screen():
-    st.image("https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20App%20Logo.png?raw=true", width=120)
+    st.image("https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true", width=200)
     st.title("Addressing Your Most Pivotal Decisions for Sustainable Growth")
     challenge_response = st.radio("How can addressing your most significant current challenge spark new growth?",
                                   options=[
