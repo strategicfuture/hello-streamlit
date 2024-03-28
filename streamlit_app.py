@@ -61,8 +61,7 @@ def enter_info():
     st.session_state.competitors = competitor_names
     variables = [st.text_input(f'Enter name for Variable {i+1}: ', key=f'var_{i}') for i in range(num_variables)]
     st.session_state.variables = variables
-    if st.button('Next to Score Variables'):
-        st.session_state.current_screen = 'score_variables'
+
 
 # Function to display the second screen for scoring variables
 def score_variables():
