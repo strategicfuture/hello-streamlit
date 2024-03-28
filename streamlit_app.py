@@ -169,6 +169,12 @@ def score_variables():
             variable_weights[variable] = weight
     st.session_state.variable_weights = variable_weights
 
+    st.markdown("""
+    <div style="text-align: justify;">
+        <p><strong>Scoring Variables:</strong> As you assess each variable, consider the scale carefully. A score of <strong>0</strong> indicates a <strong>major weakness</strong> for an internal variable, or <strong>poor positioning</strong> for an external variable. Conversely, a score of <strong>1</strong> signifies a <strong>major strength</strong> or <strong>superior positioning</strong>. Reflect on each variable's current state and potential to impact your competitive stance, and assign scores accordingly.</p>
+    </div>
+""", unsafe_allow_html=True)
+
     scores_df = pd.DataFrame(index=st.session_state.competitors, columns=st.session_state.variables)
     all_scores_entered = True
     for competitor in st.session_state.competitors:
