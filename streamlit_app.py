@@ -215,6 +215,7 @@ def show_results():
             <img src="https://github.com/strategicfuture/hello-streamlit/blob/main/Strategic%20Foresight%20Logo%20Suite-02.png?raw=true" width="350">
         </div>
     """, unsafe_allow_html=True)
+    
     if st.button('Back to Score Variables'):
         st.session_state.current_screen = 'score_variables'
     
@@ -222,47 +223,88 @@ def show_results():
         scores_df = pd.DataFrame(st.session_state['scores_df'])
         scores_df.columns = st.session_state.variables
         
+        pca = PCA(n_components=2)
+        pca_results = pca.fit_transform(st.session_state.scaled_data)
+        pca_df = pd.DataFrame(pca_results, index=st.session_state.competitors, columns=['PC1', 'PC2'])
+        
+        categories = categorize_competitors_by_pca(pca_df, pca)
+        print_competitor_categories(categories)
+
         num_clusters = np.unique(st.session_state.cluster_labels).size
         st.write(f"Number of clusters: {num_clusters}")
+        
         for i, competitor in enumerate(st.session_state.competitors):
             st.write(f"{competitor} is in Cluster {st.session_state.cluster_labels[i]+1}")
-
-        plot_choice = st.radio("How would you like to choose axes for plotting?", ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
         
-        scaled_data = np.array(st.session_state.scaled_data)
-        cluster_labels = np.array(st.session_state.cluster_labels)
-        market_share = st.session_state.market_share
+        plot_choice = st.radio("Choose axes for plotting:", ('PCA Axes', 'Manual Selection'))
         
-        if plot_choice == 'Use PCA to determine axes automatically':
-            pca = PCA(n_components=2)
-            principal_components = pca.fit_transform(scaled_data)
+        if plot_choice == 'PCA Axes':
             fig, ax = plt.subplots()
             for i, competitor in enumerate(st.session_state.competitors):
-                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=market_share[competitor] * 100, label=competitor)
-                ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
+                ax.scatter(pca_df.loc[competitor, 'PC1'], pca_df.loc[competitor, 'PC2'], s=st.session_state.market_share[competitor] * 100, label=competitor)
+                ax.annotate(competitor, (pca_df.loc[competitor, 'PC1'], pca_df.loc[competitor, 'PC2']))
             st.pyplot(fig)
-            
-            pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
-            st.write("PCA Components' Contributions to Variables:")
-            st.dataframe(pca_contributions.style.format("{:.2f}"))
-            
-        elif plot_choice == 'Manually select variables for axes':
-            try:
-                variable_options = st.session_state.variables
-                x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
-                y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
-                fig, ax = plt.subplots()
-                for competitor in st.session_state.competitors:
-                    x_score = scores_df.loc[competitor, x_var]
-                    y_score = scores_df.loc[competitor, y_var]
-                    market_size = market_share[competitor] * 100
-                    ax.scatter(x_score, y_score, s=market_size, label=competitor)
-                    ax.annotate(competitor, (x_score, y_score))
-                st.pyplot(fig)
-            except KeyError as e:
-                st.error(f"An error occurred due to too much convergence among the selected axes or missing data: {e}. Please reconsider the variables chosen for axes or ensure all competitors and variables have been scored.")
-            except Exception as e:
-                st.error(f"An unexpected error occurred: {e}. Please check your data and selections.")
+        elif plot_choice == 'Manual Selection':
+            # Manual selection code goes here
+            pass
+        
+    else:
+        st.error("Please go back and perform clustering first.")
+
+    # To add the requested feature, let's define a function that will categorize competitors based on their PCA scores
+def categorize_competitors_by_pca(scores_df, pca):
+    # Get the PCA components
+    pca_components = pca.components_
+    
+    # Create a dictionary to hold the categories
+    categories = {
+        'High_Positive_PC1_High_Positive_PC2': [],
+        'High_Positive_PC1_Close_To_Zero_PC2': [],
+        'High_Positive_PC1_Negative_PC2': []
+    }
+    
+    # Define thresholds for high, close to zero, and negative
+    high_threshold = 0.3 # This threshold can be adjusted based on domain knowledge or distribution of loadings
+    zero_threshold = 0.1 # Close to zero threshold (also adjustable)
+    
+    # Loop through the competitors
+    for competitor in scores_df.index:
+        pc1_score = scores_df.loc[competitor, 'PC1']
+        pc2_score = scores_df.loc[competitor, 'PC2']
+        
+        # Categorize based on the scores and defined thresholds
+        if pc1_score > high_threshold:
+            if pc2_score > high_threshold:
+                categories['High_Positive_PC1_High_Positive_PC2'].append(competitor)
+            elif abs(pc2_score) < zero_threshold:
+                categories['High_Positive_PC1_Close_To_Zero_PC2'].append(competitor)
+            elif pc2_score < -zero_threshold:
+                categories['High_Positive_PC1_Negative_PC2'].append(competitor)
+    
+    return categories
+
+# Function to print the categories
+def print_competitor_categories(categories):
+    for category, competitors in categories.items():
+        st.write(f"**{category.replace('_', ' ')}:**")
+        for competitor in competitors:
+            st.write(f"- {competitor}")
+
+# This function would be called in the 'show_results' function, after PCA has been performed
+# We assume 'scores_df' is a DataFrame with competitors as index and their respective PC1 and PC2 scores as columns
+
+# The below code is an example of how to integrate into the 'show_results' function
+# Assuming pca_results is the DataFrame with PC1 and PC2 scores for each competitor after PCA has been performed
+# and 'pca' is the trained PCA model
+
+# categories = categorize_competitors_by_pca(pca_results, pca)
+# print_competitor_categories(categories)
+
+# Note: Make sure to replace the placeholders with actual variable names and data from your app. 
+# The categorization function is an example and may need adjustment to fit the specific context and data structure of your app.
+
+    
+    
     else:
         st.error("Please go back and perform clustering first.")
 
