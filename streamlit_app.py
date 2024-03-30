@@ -243,29 +243,32 @@ def show_results():
             principal_components = pca.fit_transform(scaled_data)
             # Prepare the plot
             fig, ax = plt.subplots()
-            
+    
             # Plot each competitor
             for i, competitor in enumerate(st.session_state.competitors):
                 # Adjust the size based on market share, e.g., market_share[competitor] * 100 for visualization
                 size = st.session_state.market_share[competitor] * 100
-                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=size, label=competitor)
-                ax.text(principal_components[i, 0], principal_components[i, 1], competitor)
+                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=size)
+                # Add competitor name as text next to the scatter point
+                ax.text(principal_components[i, 0], principal_components[i, 1], competitor, ha='right')
             
-            # Example of adding defensive barriers (e.g., around clusters or specific companies)
-            # You might need a logic to determine the centers and radii based on your strategic groupings
-            for center in pca.transform([st.session_state.scaled_data.mean(axis=0)]):  # Example: around the mean
-                ax.add_patch(Circle(center, radius=1, color='r', fill=False, linestyle='--'))
+            # Example of adding defensive barriers
+            # Note: Adjust the logic for your specific needs
+            # This adds a circle around the mean of all points for demonstration purposes
+            mean_center = pca.transform([st.session_state.scaled_data.mean(axis=0)])
+            ax.add_patch(Circle(mean_center[0], radius=1, color='r', fill=False, linestyle='--'))
             
             # Example of adding offensive arrows
-            # You need to define the logic for start and end points based on your analysis
-            # Here's a simplistic approach for demonstration purposes:
-            start_point = principal_components[0]  # Starting from the first competitor
-            end_point = principal_components.mean(axis=0)  # Pointing towards the mean position
+            # Note: Define the logic based on your analysis
+            # Simplistic demonstration: Arrow from first to mean position
+            start_point = principal_components[0]
+            end_point = principal_components.mean(axis=0)
             ax.annotate("", xy=end_point, xycoords='data', xytext=start_point, textcoords='data',
                         arrowprops=dict(arrowstyle="->", connectionstyle="arc3", color='green'))
             
-            # Show plot with labels, customizations for readability might be necessary
-            ax.legend()
+            # Remove the legend to avoid duplication of competitor names
+            # ax.legend()  # Commented out to prevent duplication
+            
             st.pyplot(fig)
      
             pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
