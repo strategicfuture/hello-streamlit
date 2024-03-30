@@ -6,6 +6,8 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Circle, FancyBboxPatch  # For defensive barriers
+import requests
+import json
 
 # Initialize session state variables if not already present
 if 'competitors' not in st.session_state:
@@ -280,6 +282,19 @@ def show_results():
             # Assuming 'scores_df' has the competitors as rows and variables as columns with their scores
             scores_df_display = pd.DataFrame(st.session_state['scores_df'], index=st.session_state.competitors, columns=st.session_state.variables)
             st.dataframe(scores_df_display.style.format("{:.2f}"))
+            
+            # Get the scores for each variable for the competitors
+            pca_scores = scores_df.apply(lambda row: row.to_dict(), axis=1).to_dict()
+            
+            # Construct the prompt for the API
+            prompt_text = f"Please interpret the strategic implications of the following PCA scores for our competitive landscape analysis:\n"
+            for competitor, scores in pca_scores.items():
+                prompt_text += f"\nCompetitor {competitor}: {scores}"
+                
+            # Query the OpenAI API and display the result
+            if st.button('Interpret PCA Results'):
+                api_response = query_openai_api({'prompt': prompt_text})
+                st.text(api_response['choices'][0]['text'])   
 
         elif plot_choice == 'Manually select variables for axes':
             try:
@@ -300,6 +315,23 @@ def show_results():
                 st.error(f"An unexpected error occurred: {e}. Please check your data and selections.")
     else:
         st.error("Please go back and perform clustering first.")
+
+ # Your OpenAI API key
+OPENAI_API_KEY = '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'
+
+# Function to call the OpenAI API
+def query_openai_api(data):
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {OPENAI_API_KEY}',
+    }
+    json_data = {
+        'model': 'gpt-4-turbo-preview',  # Or whichever model you're using
+        'prompt': data['prompt'],  # Your prompt built from the PCA and clustering data
+        'max_tokens': 500,
+    }
+    response = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json_data)
+    return response.json()
 
   # Subscription Call-to-Action
     st.markdown("### Download White Paper")
