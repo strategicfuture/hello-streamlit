@@ -240,29 +240,34 @@ def show_results():
         
         if plot_choice == 'Use PCA to determine axes automatically':
             pca = PCA(n_components=2)
-        principal_components = pca.fit_transform(st.session_state.scaled_data)
-
-        # Start plotting
-        fig, ax = plt.subplots()
-
-        # Plotting the principal components
-        ax.scatter(principal_components[:, 0], principal_components[:, 1], alpha=0.7)
-
-        # Add defensive barriers and offensive arrows
-        # Example: Add a circle as a defensive barrier around a strategic group
-        for cluster_center in pca.transform(kmeans.cluster_centers_):
-            ax.add_patch(Circle(cluster_center, radius=1, color='r', fill=False))
-
-        # Example: Add offensive arrows
-        # Assuming you have logic to define start and end points for these arrows
-        start_points = principal_components[:2]  # Just an example, replace with your logic
-        end_points = principal_components[2:4]   # Just an example, replace with your logic
-        for start, end in zip(start_points, end_points):
-            ax.annotate("", xy=end, xycoords='data', xytext=start, textcoords='data',
-                        arrowprops=dict(arrowstyle="->", connectionstyle="arc3"))
-
-        st.pyplot(fig)
+            principal_components = pca.fit_transform(scaled_data)
+            # Prepare the plot
+            fig, ax = plt.subplots()
             
+            # Plot each competitor
+            for i, competitor in enumerate(st.session_state.competitors):
+                # Adjust the size based on market share, e.g., market_share[competitor] * 100 for visualization
+                size = st.session_state.market_share[competitor] * 100
+                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=size, label=competitor)
+                ax.text(principal_components[i, 0], principal_components[i, 1], competitor)
+            
+            # Example of adding defensive barriers (e.g., around clusters or specific companies)
+            # You might need a logic to determine the centers and radii based on your strategic groupings
+            for center in pca.transform([st.session_state.scaled_data.mean(axis=0)]):  # Example: around the mean
+                ax.add_patch(Circle(center, radius=1, color='r', fill=False, linestyle='--'))
+            
+            # Example of adding offensive arrows
+            # You need to define the logic for start and end points based on your analysis
+            # Here's a simplistic approach for demonstration purposes:
+            start_point = principal_components[0]  # Starting from the first competitor
+            end_point = principal_components.mean(axis=0)  # Pointing towards the mean position
+            ax.annotate("", xy=end_point, xycoords='data', xytext=start_point, textcoords='data',
+                        arrowprops=dict(arrowstyle="->", connectionstyle="arc3", color='green'))
+            
+            # Show plot with labels, customizations for readability might be necessary
+            ax.legend()
+            st.pyplot(fig)
+     
             pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
             st.write("PCA Components' Contributions to Variables:")
             st.dataframe(pca_contributions.style.format("{:.2f}"))
