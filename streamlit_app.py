@@ -222,10 +222,14 @@ def show_results():
         scores_df = pd.DataFrame(st.session_state['scores_df'])
         scores_df.columns = st.session_state.variables
         
-        num_clusters = np.unique(st.session_state.cluster_labels).size
-        st.write(f"Number of clusters: {num_clusters}")
+        cluster_competitors = {i: [] for i in range(np.unique(st.session_state.cluster_labels).size)}
         for i, competitor in enumerate(st.session_state.competitors):
-            st.write(f"{competitor} is in Cluster {st.session_state.cluster_labels[i]+1}")
+            cluster_label = st.session_state.cluster_labels[i]
+            cluster_competitors[cluster_label].append(competitor)
+        
+        st.write("Competitors by Cluster:")
+        for cluster, competitors in cluster_competitors.items():
+            st.write(f"**Cluster {cluster + 1}:** {', '.join(competitors)}")
 
         plot_choice = st.radio("How would you like to choose axes for plotting?", ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
         
@@ -246,17 +250,12 @@ def show_results():
             st.write("PCA Components' Contributions to Variables:")
             st.dataframe(pca_contributions.style.format("{:.2f}"))
 
-            # After displaying PCA components
-            st.write("PCA Components' Contributions to Variables:")
-            pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
-            st.dataframe(pca_contributions.style.format("{:.2f}"))
-
             # Adding a header before displaying the scores
             st.write("Competitors' Scores for Each Variable:")
             # Assuming 'scores_df' has the competitors as rows and variables as columns with their scores
             scores_df_display = pd.DataFrame(st.session_state['scores_df'], index=st.session_state.competitors, columns=st.session_state.variables)
             st.dataframe(scores_df_display.style.format("{:.2f}"))
-            
+
         elif plot_choice == 'Manually select variables for axes':
             try:
                 variable_options = st.session_state.variables
