@@ -28,7 +28,7 @@ if 'cluster_labels' not in st.session_state:
     st.session_state.cluster_labels = None
 
  # Your OpenAI API key
-OPENAI_API_KEY = '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'
+OPENAI_API_KEY = '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'
 
 # Function to call the OpenAI API
 def query_openai_api(data):
