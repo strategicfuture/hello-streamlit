@@ -41,7 +41,7 @@ def query_openai_api(data):
         'prompt': data['prompt'],  # The prompt from your application
         'max_tokens': 500,
     }
-    response = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json_data)
+    response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=json_data)
     
     if response.status_code == 200:
         response_json = response.json()
