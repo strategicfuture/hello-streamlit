@@ -323,15 +323,11 @@ def show_results():
                 
             # Query the OpenAI API and display the result
             if st.button('Interpret PCA Results'):
-                api_response = query_openai_api({'prompt': prompt_text})
-                if api_response.status_code == 200:
-                    response_data = api_response.json()
-                    if 'choices' in response_data and len(response_data['choices']) > 0:
-                        st.text(response_data['choices'][0]['text'])
-                    else:
-                        st.error("No choices found in the API response.")
+                api_response_text = query_openai_api({'prompt': prompt_text})
+                if not api_response_text.startswith("Error:"):
+                    st.text(api_response_text)
                 else:
-                    st.error(f"API request failed with status code {api_response.status_code}.")
+                    st.error(api_response_text)  # Show the error message
 
         elif plot_choice == 'Manually select variables for axes':
             try:
