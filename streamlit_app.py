@@ -321,30 +321,14 @@ def show_results():
             pca_scores = scores_df.apply(lambda row: row.to_dict(), axis=1).to_dict()
             
             # Construct the prompt for the API
-            prompt_text = f"""I have conducted a Principal Component Analysis (PCA) on a dataset representing the competitive landscape in our industry, focusing on various strategic metrics. This analysis provides PCA scores for several competitors across a set of critical variables and introduces a strategic map featuring defensive barriers and offensive arrows. These elements illustrate potential strategic movements and contribute to our understanding of competitive dynamics, including the spread and cohesion of competitors within clusters and suggested strategic directions for growth or improvement.
-
-Given this context, please provide a structured strategic analysis that delves into the implications of PCA scores for each variable and each competitor, as well as the strategic implications of the defensive barriers and offensive arrows on our competitive strategy.
-
-Please structure your analysis as follows:
-
-1) **General Principles**: Begin with a general insight on how PCA scores, particularly in relation to PC1 and PC2 dimensions, can imply strategic implications in competitive landscape analysis. Discuss the impact of high positive, close to zero, and negative scores on PC1 and PC2 for strategic positioning and decision-making. Include how defensive barriers and offensive arrows on the strategic map contribute to understanding competitive dynamics.
-
-2) **PCA Score Analysis for Each Competitor**: Analyze the strategic positioning implied by the PCA scores for each competitor in detail. Highlight the significance of high positive scores, scores close to zero, and negative scores for each principal component, and discuss their potential strategic implications. Ensure this analysis ties back to each company's strategic focus, competitive advantage, and market positioning.
-
-3) **Defensive Barriers and Offensive Arrows**: Explain the strategic implications of the defensive barriers (indicating the defensive stance and cohesion of competitors within clusters) and offensive arrows (suggesting movements towards areas of growth or improvement). Discuss how these elements, combined with the PCA scores, enhance our understanding of competitive dynamics and suggest potential strategic movements within the industry.
-
-4) **Strategic Considerations and Recommendations**: Conclude with overarching strategic considerations and actionable recommendations derived from the PCA scores, PC1 and PC2 dimensions, and the strategic map analysis. This should include insights on potential strategic moves, areas for further analysis or consideration, and how these scores and the strategic map might influence our competitive strategy and market positioning.
-
-Defensive Barriers: The radius for defensive barriers is dynamically calculated as the RMS distance of cluster points from their center, indicating the defensive stance and cohesion of competitors within the same strategic group.
-
-Offensive Arrows: Arrows indicate strategic movements from cluster centers towards the global mean of the principal components, representing potential strategic directions for growth or improvement.
-
-The PCA scores are as follows: [Include PCA scores for competitors across the variables]
-
-(Note: Ensure to replace the placeholder with the actual PCA scores for each competitor and variable, tailoring this section to your specific data points.)
-
-Your analysis will guide our strategic decision-making, emphasizing the nuanced insights gleaned from both the PCA scores and the strategic map's visual cues.
-
+            prompt_text = f"""I have conducted a Principal Component Analysis (PCA) and applied k-means clustering to a dataset that captures the competitive landscape of our industry, highlighting various strategic metrics. This analysis delineates PCA scores for competitors across key variables, showcasing their strategic positioning via PC1 and PC2 dimensions, and segments them into clusters to illuminate collective strategic orientations. Additionally, our strategic map visualizes these findings with defensive barriers encircling clusters and offensive arrows pointing toward potential strategic shifts.
+In light of this complex analysis, I seek a structured strategic evaluation that merges the insights from individual PCA scores, the aggregate view provided by k-means clustering, and the strategic map's defensive and offensive markers.
+Analysis Structure Request:
+General Principles: Begin with an exploration of PCA scores' implications on PC1 and PC2 for individual strategic positioning, integrating how k-means clustering further refines our understanding by revealing group dynamics within the competitive landscape. Address the significance of varying PCA scores and how clustering enhances our strategic insight.
+Integrated Analysis: Dive into a nuanced examination that combines PCA score interpretations for each competitor with k-means clustering outcomes. Detail the strategic implications tied to each competitor’s positioning on PC1 and PC2 and articulate the strategic narratives emerging from their cluster associations.
+Strategic Map Insights: Focus on interpreting the strategic map, with a particular emphasis on what the defensive barriers and offensive arrows signify. Defensive barriers reflect the cohesiveness and defensive stance of clusters, indicating how competitors within a cluster collectively maintain their strategic positions. Offensive arrows point towards potential strategic advancements or areas ripe for disruption, suggesting proactive moves competitors could make to alter the competitive landscape. This analysis should bridge the individual and collective insights derived from the PCA scores and k-means clustering, providing a holistic view of the competitive dynamics.
+Strategic Recommendations: Wrap up with actionable strategic recommendations that draw on the holistic insights from PCA scores, clustering insights, and the strategic map. Propose potential strategic maneuvers, innovation opportunities, and strategic positioning considerations vis-à-vis the observed competitor clusters.
+Ensure this comprehensive analysis not only deciphers the individual and collective strategic postures but also identifies actionable pathways for strategic engagement, leveraging the in-depth insights provided by our PCA scores, k-means clustering, and strategic map interpretations.
 """
             for competitor_name, scores in pca_scores.items():
                 prompt_text += f"\nCompetitor '{competitor_name}':\n"
