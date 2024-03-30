@@ -241,36 +241,36 @@ def show_results():
         if plot_choice == 'Use PCA to determine axes automatically':
             pca = PCA(n_components=2)
             principal_components = pca.fit_transform(scaled_data)
-            # Prepare the plot
+
             fig, ax = plt.subplots()
-    
+
             # Plot each competitor
             for i, competitor in enumerate(st.session_state.competitors):
-                # Adjust the size based on market share, e.g., market_share[competitor] * 100 for visualization
                 size = st.session_state.market_share[competitor] * 100
-                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=size)
-                # Add competitor name as text next to the scatter point
-                ax.text(principal_components[i, 0], principal_components[i, 1], competitor, ha='right')
-            
-            # Example of adding defensive barriers
-            # Note: Adjust the logic for your specific needs
-            # This adds a circle around the mean of all points for demonstration purposes
-            mean_center = pca.transform([st.session_state.scaled_data.mean(axis=0)])
-            ax.add_patch(Circle(mean_center[0], radius=1, color='r', fill=False, linestyle='--'))
-            
-            # Example of adding offensive arrows
-            # Note: Define the logic based on your analysis
-            # Simplistic demonstration: Arrow from first to mean position
-            start_point = principal_components[0]
-            end_point = principal_components.mean(axis=0)
-            ax.annotate("", xy=end_point, xycoords='data', xytext=start_point, textcoords='data',
-                        arrowprops=dict(arrowstyle="->", connectionstyle="arc3", color='green'))
-            
-            # Remove the legend to avoid duplication of competitor names
-            # ax.legend()  # Commented out to prevent duplication
-            
+                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=size, label=competitor)
+                ax.text(principal_components[i, 0], principal_components[i, 1], competitor, ha='right', va='bottom')
+
+            # Determine defensive barriers and offensive arrows
+            cluster_centers = np.array([principal_components[st.session_state.cluster_labels == i].mean(axis=0) for i in np.unique(st.session_state.cluster_labels)])
+
+            # Add defensive barriers around cluster centers
+            for center in cluster_centers:
+                radius = np.std(principal_components[st.session_state.cluster_labels == i])  # Example: Std deviation as radius
+                ax.add_patch(Circle(center, radius, color='red', fill=False, linestyle='--'))
+
+            # Add offensive arrows pointing towards potential areas for growth or improvement
+            # For simplicity, arrows point from cluster centers towards the global mean, adjust as needed
+            global_mean = principal_components.mean(axis=0)
+            for center in cluster_centers:
+                direction = global_mean - center
+                ax.annotate('', xy=center + direction * 0.5, xytext=center, arrowprops=dict(facecolor='green', shrink=0.05))
+
+            ax.set_xlabel('PC1')
+            ax.set_ylabel('PC2')
+            ax.set_title('Strategic Map with Defensive Barriers and Offensive Arrows')
+
             st.pyplot(fig)
-     
+
             pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
             st.write("PCA Components' Contributions to Variables:")
             st.dataframe(pca_contributions.style.format("{:.2f}"))
