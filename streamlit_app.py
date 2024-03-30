@@ -303,7 +303,7 @@ def show_results():
 
             ax.set_xlabel('PC1')
             ax.set_ylabel('PC2')
-            ax.set_title('Strategic Map with Defensive Barriers and Offensive Arrows')
+            ax.set_title('Strategic Foresight PROACT Solution Development Atlas No.2')
 
             st.pyplot(fig)
 
@@ -346,8 +346,10 @@ The PCA scores are as follows: [Include PCA scores for competitors across the va
 Your analysis will guide our strategic decision-making, emphasizing the nuanced insights gleaned from both the PCA scores and the strategic map's visual cues.
 
 """
-            for competitor, scores in pca_scores.items():
-                prompt_text += f"\nCompetitor {competitor}: {scores}"
+            for competitor_name, scores in pca_scores.items():
+                prompt_text += f"\nCompetitor '{competitor_name}':\n"
+                for variable, score in scores.items():
+                    prompt_text += f"- {variable}: {score}\n"
                 
             # Query the OpenAI API and display the result
             if st.button('Interpret PCA Results'):
