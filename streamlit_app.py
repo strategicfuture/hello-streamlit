@@ -37,14 +37,14 @@ def query_openai_api(data):
         'Authorization': f'Bearer {OPENAI_API_KEY}',
     }
     json_data = {
-        'model': 'gpt-4-0125-preview',  # Or whichever model you're using
-        'prompt': data['prompt'],  # Your prompt built from the PCA and clustering data
+        'model': 'gpt-4-0125-preview',  # Use the correct model you have access to
+        'prompt': data['prompt'],  # The prompt from your application
         'max_tokens': 500,
     }
     response = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json_data)
-if response.status_code == 200:
+    
+    if response.status_code == 200:
         response_json = response.json()
-        st.write(response_json)  # Print the full response to debug
         try:
             # Attempt to access the 'choices' key
             return response_json['choices'][0]['text']
