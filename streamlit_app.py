@@ -121,7 +121,7 @@ def enter_market_share():
     """)
     for competitor in st.session_state.competitors:
         if competitor:
-            market_share = st.number_input(f'Enter market share for {competitor} (%): ', min_value=0.0, max_value=100.0, value=0.0, step=0.01, format="%.2f" key=f'market_share_{competitor}')
+            market_share = st.number_input(f'Enter market share for {competitor} (%): ', min_value=0.0, max_value=100.0, value=0.0, step=0.01, format="%.2f", key=f'market_share_{competitor}')
             st.session_state.market_share[competitor] = market_share
     if st.button('Next to Score Variables'):
         st.session_state.current_screen = 'score_variables'
