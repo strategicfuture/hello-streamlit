@@ -323,11 +323,16 @@ def show_results():
             cols = ['Fallback Label'] + [col for col in scores_df_display if col != 'Fallback Label']
             scores_df_display = scores_df_display[cols]
 
-            # Displaying the updated DataFrame with fallback labels
-            st.write("Competitors' Scores for Each Variable, including Fallback Labels:")
-            st.dataframe(scores_df_display.style.format("{:.2f}"))
+            # Apply formatting only to numerical columns and exclude the 'Fallback Label'
+            # First, let's create a style function that applies formatting conditionally
+            def apply_style(df):
+                return df.style.format("{:.2f}", na_rep="N/A", subset=pd.IndexSlice[:, df.columns.difference(['Fallback Label'])])
 
-            # Get the scores for each variable for the competitors
+            # Use the apply_style function on the DataFrame before displaying it
+            st.write("Competitors' Scores for Each Variable, including Fallback Labels:")
+            st.dataframe(apply_style(scores_df_display))
+
+            # Now, when getting pca_scores, ensure the 'Fallback Label' column is dropped
             pca_scores = scores_df_display.drop('Fallback Label', axis=1).apply(lambda row: row.to_dict(), axis=1).to_dict()
             
             # Construct the prompt for the API
