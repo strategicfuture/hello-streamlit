@@ -36,9 +36,8 @@ def query_openai_api(data):
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {OPENAI_API_KEY}',
     }
-    # Updated to use a chat-compatible model
     json_data = {
-        'model': 'gpt-4-0125-preview',  # Ensure you have access to this model
+        'model': 'gpt-4.0-turbo',  # Make sure this is the correct model identifier
         'messages': [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": data['prompt']}
@@ -48,15 +47,24 @@ def query_openai_api(data):
     
     if response.status_code == 200:
         response_json = response.json()
-        # Attempt to extract the assistant's response
-        assistant_messages = [message['content'] for message in response_json['choices'][0]['messages'] if message['role'] == 'assistant']
-        if assistant_messages:
-            # Join all assistant messages to form a full response
-            return " ".join(assistant_messages)
-        else:
-            return "Error: No assistant messages found in the response."
+        try:
+            # Directly access the 'choices' to get the list of messages.
+            # We expect the last message in the first choice to be the assistant's response.
+            messages = response_json['choices'][0]['messages']
+            # Find the last assistant message.
+            assistant_message = next((msg for msg in reversed(messages) if msg['role'] == 'assistant'), None)
+            if assistant_message:
+                return assistant_message['content']
+            else:
+                return "Error: No assistant messages found in the response."
+        except KeyError as e:
+            # Log the error and the unexpected response structure
+            st.error(f"KeyError: {e}. Unexpected response structure: {response_json}")
+            return "Error: Received unexpected response structure."
     else:
-        return f"Error: API request failed with status code {response.status_code}. Response: {response.text}"
+        st.error(f"API request failed with status code {response.status_code}: {response.text}")
+        return f"Error: API request failed with status code {response.status_code}"
+
 
 # New initial challenge screen function
 def init_challenge_screen():
