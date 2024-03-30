@@ -37,7 +37,7 @@ def query_openai_api(data):
         'Authorization': f'Bearer {OPENAI_API_KEY}',
     }
     json_data = {
-        'model': 'gpt-4.0-turbo',  # Make sure this is the correct model identifier
+        'model': 'gpt-4-0125-preview',  # Make sure this is the correct model identifier
         'messages': [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": data['prompt']}
