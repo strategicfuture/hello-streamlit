@@ -311,14 +311,24 @@ def show_results():
             st.write("PCA Components' Contributions to Variables:")
             st.dataframe(pca_contributions.style.format("{:.2f}"))
 
-            # Adding a header before displaying the scores
-            st.write("Competitors' Scores for Each Variable:")
             # Assuming 'scores_df' has the competitors as rows and variables as columns with their scores
             scores_df_display = pd.DataFrame(st.session_state['scores_df'], index=st.session_state.competitors, columns=st.session_state.variables)
+
+            # Adding a fallback label column to scores_df_display for each competitor
+            fallback_labels = [f'Competitor {i}' for i in range(len(scores_df_display))]
+            scores_df_display['Fallback Label'] = fallback_labels
+
+            # You might want to display the 'Fallback Label' column first
+            # So let's rearrange the columns to make 'Fallback Label' appear first
+            cols = ['Fallback Label'] + [col for col in scores_df_display if col != 'Fallback Label']
+            scores_df_display = scores_df_display[cols]
+
+            # Displaying the updated DataFrame with fallback labels
+            st.write("Competitors' Scores for Each Variable, including Fallback Labels:")
             st.dataframe(scores_df_display.style.format("{:.2f}"))
-            
+
             # Get the scores for each variable for the competitors
-            pca_scores = scores_df.apply(lambda row: row.to_dict(), axis=1).to_dict()
+            pca_scores = scores_df_display.drop('Fallback Label', axis=1).apply(lambda row: row.to_dict(), axis=1).to_dict()
             
             # Construct the prompt for the API
             prompt_text = f"""I have conducted a Principal Component Analysis (PCA) and applied k-means clustering on a dataset representing the competitive landscape in our industry, focusing on various strategic metrics. This combined analysis provides PCA scores for each competitor across critical variables, illustrating their positioning along the principal components PC1 and PC2. It also segments competitors into clusters, offering insights into collective strategic stances within the market. Furthermore, we have visualized this analysis through a strategic map that features defensive barriers around clusters and offensive arrows indicating potential strategic directions.
