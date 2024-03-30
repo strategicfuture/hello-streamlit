@@ -326,7 +326,7 @@ def query_openai_api(data):
         'Authorization': f'Bearer {OPENAI_API_KEY}',
     }
     json_data = {
-        'model': 'gpt-4-turbo-preview',  # Or whichever model you're using
+        'model': 'gpt-4-0125-preview',  # Or whichever model you're using
         'prompt': data['prompt'],  # Your prompt built from the PCA and clustering data
         'max_tokens': 500,
     }
