@@ -38,10 +38,12 @@ def query_openai_api(data):
     }
     json_data = {
         'model': 'gpt-4-0125-preview',  # Use the correct model you have access to
-        'prompt': data['prompt'],  # The prompt from your application
-        'max_tokens': 500,
-    }
-    response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=json_data)
+        'messages': [
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": data['prompt']}
+                ],
+            }
+            response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=json_data)
     
     if response.status_code == 200:
         response_json = response.json()
