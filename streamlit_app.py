@@ -337,7 +337,7 @@ Start answer going right into the key findings, as if you were briefing a senior
                 for variable, score in scores.items():
                     prompt_text += f"- {variable}: {score}\n"
                 
-            prompt_text += "\nEnsure that the analysis incorporates the competitor names and variables as detailed. The objective is to derive actionable strategic foresight that is explicitly linked to the identified competitors, leveraging the PCA and k-means clustering findings."
+            prompt_text += "\nEnsure that the analysis incorporates the competitor names and variables as detailed. Please do not subtitute or generalize them or refer to them as competitor 0, 1, 2 ,etc. The objective is to derive actionable strategic foresight that is explicitly linked to the identified competitors, leveraging the PCA and k-means clustering findings."
 
             # Query the OpenAI API and display the result
             if st.button('Interpret PCA Results'):
