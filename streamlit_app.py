@@ -245,6 +245,17 @@ def show_results():
             pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
             st.write("PCA Components' Contributions to Variables:")
             st.dataframe(pca_contributions.style.format("{:.2f}"))
+
+            # After displaying PCA components
+            st.write("PCA Components' Contributions to Variables:")
+            pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
+            st.dataframe(pca_contributions.style.format("{:.2f}"))
+
+            # Adding a header before displaying the scores
+            st.write("Competitors' Scores for Each Variable:")
+            # Assuming 'scores_df' has the competitors as rows and variables as columns with their scores
+            scores_df_display = pd.DataFrame(st.session_state['scores_df'], index=st.session_state.competitors, columns=st.session_state.variables)
+            st.dataframe(scores_df_display.style.format("{:.2f}"))
             
         elif plot_choice == 'Manually select variables for axes':
             try:
