@@ -328,8 +328,7 @@ def show_results():
             # Query the OpenAI API and display the result
             if st.button('Interpret PCA Results'):
                 api_response_text = query_openai_api({'prompt': prompt_text})
-                if not api_response_text.startswith("Error:"):
-                    st.text(api_response_text)
+                if not api_response_text.startswith("Error:"):st.text_area("Response:", value=api_response_text, height=300, help="PCA Analysis Interpretation")
                 else:
                     st.error(api_response_text)  # Show the error message
 
