@@ -27,6 +27,23 @@ if 'scaled_data' not in st.session_state:
 if 'cluster_labels' not in st.session_state:
     st.session_state.cluster_labels = None
 
+ # Your OpenAI API key
+OPENAI_API_KEY = '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'
+
+# Function to call the OpenAI API
+def query_openai_api(data):
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {OPENAI_API_KEY}',
+    }
+    json_data = {
+        'model': 'gpt-4-0125-preview',  # Or whichever model you're using
+        'prompt': data['prompt'],  # Your prompt built from the PCA and clustering data
+        'max_tokens': 500,
+    }
+    response = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json_data)
+    return response.json()
+
 # New initial challenge screen function
 def init_challenge_screen():
     # Using HTML to center the logo image
@@ -315,23 +332,6 @@ def show_results():
                 st.error(f"An unexpected error occurred: {e}. Please check your data and selections.")
     else:
         st.error("Please go back and perform clustering first.")
-
- # Your OpenAI API key
-OPENAI_API_KEY = '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'
-
-# Function to call the OpenAI API
-def query_openai_api(data):
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {OPENAI_API_KEY}',
-    }
-    json_data = {
-        'model': 'gpt-4-0125-preview',  # Or whichever model you're using
-        'prompt': data['prompt'],  # Your prompt built from the PCA and clustering data
-        'max_tokens': 500,
-    }
-    response = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json_data)
-    return response.json()
 
   # Subscription Call-to-Action
     st.markdown("### Download White Paper")
