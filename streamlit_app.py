@@ -38,7 +38,7 @@ def query_openai_api(data):
     }
     # Updated to use a chat-compatible model
     json_data = {
-        'model': 'gpt-4.0-turbo',  # Ensure you have access to this model
+        'model': 'gpt-4-0125-preview',  # Ensure you have access to this model
         'messages': [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": data['prompt']}
