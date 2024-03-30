@@ -42,7 +42,7 @@ def query_openai_api(data):
         'max_tokens': 500,
     }
     response = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json_data)
-     if response.status_code == 200:
+if response.status_code == 200:
         response_json = response.json()
         st.write(response_json)  # Print the full response to debug
         try:
