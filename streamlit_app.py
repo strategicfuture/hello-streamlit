@@ -36,28 +36,27 @@ def query_openai_api(data):
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {OPENAI_API_KEY}',
     }
+    # Updated to use a chat-compatible model
     json_data = {
-        'model': 'gpt-4-0125-preview',  # Use the correct model you have access to
+        'model': 'gpt-4.0-turbo',  # Ensure you have access to this model
         'messages': [
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": data['prompt']}
-                ],
-            }
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": data['prompt']}
+        ],
+    }
     response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=json_data)
     
     if response.status_code == 200:
         response_json = response.json()
-        try:
-            # Attempt to access the 'choices' key
-            return response_json['choices'][0]['text']
-        except KeyError:
-            # Handle cases where 'choices' is not in the response
-            st.error("Received unexpected response structure.")
-            return "Error: Received unexpected response structure."
+        # Attempt to extract the assistant's response
+        assistant_messages = [message['content'] for message in response_json['choices'][0]['messages'] if message['role'] == 'assistant']
+        if assistant_messages:
+            # Join all assistant messages to form a full response
+            return " ".join(assistant_messages)
+        else:
+            return "Error: No assistant messages found in the response."
     else:
-        # Handle HTTP errors
-        st.error(f"API request failed with status code {response.status_code}: {response.text}")
-        return f"Error: API request failed with status code {response.status_code}"
+        return f"Error: API request failed with status code {response.status_code}. Response: {response.text}"
 
 # New initial challenge screen function
 def init_challenge_screen():
