@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Circle, FancyBboxPatch  # For defensive barriers
 
 # Initialize session state variables if not already present
 if 'competitors' not in st.session_state:
@@ -239,12 +240,28 @@ def show_results():
         
         if plot_choice == 'Use PCA to determine axes automatically':
             pca = PCA(n_components=2)
-            principal_components = pca.fit_transform(scaled_data)
-            fig, ax = plt.subplots()
-            for i, competitor in enumerate(st.session_state.competitors):
-                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=market_share[competitor] * 100, label=competitor)
-                ax.annotate(competitor, (principal_components[i, 0], principal_components[i, 1]))
-            st.pyplot(fig)
+        principal_components = pca.fit_transform(st.session_state.scaled_data)
+
+        # Start plotting
+        fig, ax = plt.subplots()
+
+        # Plotting the principal components
+        ax.scatter(principal_components[:, 0], principal_components[:, 1], alpha=0.7)
+
+        # Add defensive barriers and offensive arrows
+        # Example: Add a circle as a defensive barrier around a strategic group
+        for cluster_center in pca.transform(kmeans.cluster_centers_):
+            ax.add_patch(Circle(cluster_center, radius=1, color='r', fill=False))
+
+        # Example: Add offensive arrows
+        # Assuming you have logic to define start and end points for these arrows
+        start_points = principal_components[:2]  # Just an example, replace with your logic
+        end_points = principal_components[2:4]   # Just an example, replace with your logic
+        for start, end in zip(start_points, end_points):
+            ax.annotate("", xy=end, xycoords='data', xytext=start, textcoords='data',
+                        arrowprops=dict(arrowstyle="->", connectionstyle="arc3"))
+
+        st.pyplot(fig)
             
             pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
             st.write("PCA Components' Contributions to Variables:")
