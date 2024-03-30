@@ -42,7 +42,20 @@ def query_openai_api(data):
         'max_tokens': 500,
     }
     response = requests.post('https://api.openai.com/v1/completions', headers=headers, json=json_data)
-    return response.json()
+     if response.status_code == 200:
+        response_json = response.json()
+        st.write(response_json)  # Print the full response to debug
+        try:
+            # Attempt to access the 'choices' key
+            return response_json['choices'][0]['text']
+        except KeyError:
+            # Handle cases where 'choices' is not in the response
+            st.error("Received unexpected response structure.")
+            return "Error: Received unexpected response structure."
+    else:
+        # Handle HTTP errors
+        st.error(f"API request failed with status code {response.status_code}: {response.text}")
+        return f"Error: API request failed with status code {response.status_code}"
 
 # New initial challenge screen function
 def init_challenge_screen():
@@ -311,7 +324,14 @@ def show_results():
             # Query the OpenAI API and display the result
             if st.button('Interpret PCA Results'):
                 api_response = query_openai_api({'prompt': prompt_text})
-                st.text(api_response['choices'][0]['text'])   
+                if api_response.status_code == 200:
+                    response_data = api_response.json()
+                    if 'choices' in response_data and len(response_data['choices']) > 0:
+                        st.text(response_data['choices'][0]['text'])
+                    else:
+                        st.error("No choices found in the API response.")
+                else:
+                    st.error(f"API request failed with status code {api_response.status_code}.")
 
         elif plot_choice == 'Manually select variables for axes':
             try:
