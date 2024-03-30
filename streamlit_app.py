@@ -43,7 +43,7 @@ def query_openai_api(data):
                     {"role": "user", "content": data['prompt']}
                 ],
             }
-            response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=json_data)
+    response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=json_data)
     
     if response.status_code == 200:
         response_json = response.json()
