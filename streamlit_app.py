@@ -303,7 +303,7 @@ def show_results():
 
             ax.set_xlabel('PC1')
             ax.set_ylabel('PC2')
-            ax.set_title('Strategic Foresight PROACT Solution Development Atlas No.2')
+            ax.set_title('Strategic Foresight PROACT Solution Development Atlas')
 
             st.pyplot(fig)
 
