@@ -250,20 +250,20 @@ def show_results():
                 ax.scatter(principal_components[i, 0], principal_components[i, 1], s=size, label=competitor)
                 ax.text(principal_components[i, 0], principal_components[i, 1], competitor, ha='right', va='bottom')
 
-            # Determine defensive barriers and offensive arrows
+            # Calculate cluster centers
             cluster_centers = np.array([principal_components[st.session_state.cluster_labels == i].mean(axis=0) for i in np.unique(st.session_state.cluster_labels)])
-
-            # Add defensive barriers around cluster centers
-            for center in cluster_centers:
-                radius = np.std(principal_components[st.session_state.cluster_labels == i])  # Example: Std deviation as radius
+            
+            # Determine a dynamic radius for circles based on data spread within each cluster
+            for i, center in enumerate(cluster_centers):
+                cluster_points = principal_components[st.session_state.cluster_labels == i]
+                radius = np.sqrt(((cluster_points - center) ** 2).sum(axis=1).mean())  # RMS distance to center as radius
                 ax.add_patch(Circle(center, radius, color='red', fill=False, linestyle='--'))
 
-            # Add offensive arrows pointing towards potential areas for growth or improvement
-            # For simplicity, arrows point from cluster centers towards the global mean, adjust as needed
+            # Add offensive arrows showing potential strategic directions
             global_mean = principal_components.mean(axis=0)
             for center in cluster_centers:
                 direction = global_mean - center
-                ax.annotate('', xy=center + direction * 0.5, xytext=center, arrowprops=dict(facecolor='green', shrink=0.05))
+                ax.annotate('', xy=center + direction * 0.5, xytext=center, arrowprops=dict(facecolor='green', shrink=0.05, width=1.5, headwidth=8))
 
             ax.set_xlabel('PC1')
             ax.set_ylabel('PC2')
