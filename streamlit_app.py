@@ -385,6 +385,30 @@ Please incorporate the PCA scores and k-means clustering results for each compet
                 """, unsafe_allow_html=True)  
     else:
         st.error("Please go back and perform clustering first.")
+    if 'conversation_history' not in st.session_state:
+        st.session_state.conversation_history = []
+
+    # Display existing conversation history
+    for entry in st.session_state.conversation_history:
+        st.text_area(label="Q:", value=entry['prompt'], height=75, disabled=True)
+        st.text_area(label="A:", value=entry['response'], height=150, disabled=True)
+
+    # Input for a new question
+    new_question = st.text_input("Ask a question:")
+
+    # Submitting a new question
+    if st.button("Ask") and new_question:
+        # Simulate API response
+        simulated_response = "This is a simulated response to your question."
+        
+        # Update conversation history
+        st.session_state.conversation_history.append({
+            'prompt': new_question,
+            'response': simulated_response
+        })
+        
+        # Clear input box after asking
+        st.experimental_rerun()
 
   # Subscription Call-to-Action
     st.markdown("### Download White Paper")
