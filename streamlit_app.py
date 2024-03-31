@@ -249,6 +249,30 @@ def score_variables():
             # Update the score in the session state
             st.session_state.scores[score_key] = new_score
 
+    all_scores_entered = True
+
+    for competitor in st.session_state.competitors:
+        for variable in st.session_state.variables:
+            score_key = f'score_{competitor}_{variable}'
+            # Check if the score_key exists in the session state and if not, set all_scores_entered to False
+            if score_key not in st.session_state.scores or st.session_state.scores[score_key] is None:
+                all_scores_entered = False
+
+            # Assume current_score is retrieved from session_state as before
+            # Assume new_score is set by slider and updated in session_state as before
+
+        # Check if the button is pressed and all scores are entered before proceeding
+        if st.button('Score and Analyze') and all_scores_entered:
+            # Now you can safely proceed with reconstructing scores_df from session state
+            # and your analysis, knowing all scores have been entered
+            scores_df = pd.DataFrame(index=st.session_state.competitors, columns=st.session_state.variables)
+            for competitor in st.session_state.competitors:
+                for variable in st.session_state.variables:
+                    score_key = f'score_{competitor}_{variable}'
+                    scores_df.at[competitor, variable] = st.session_state.scores[score_key]
+
+            # Proceed with your normalization and analysis as before
+            # Remember to set pca_ready and other relevant flags here
     # When ready to analyze, you can reconstruct scores_df from the session state
     if st.button('Score and Analyze') and all_scores_entered:
         # Initialize an empty DataFrame
