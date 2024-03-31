@@ -172,7 +172,7 @@ def score_variables():
     if st.button('Back to Enter Market Share'):
         st.session_state.current_screen = 'enter_market_share'
     st.header("Score Variables")
-    with st.expander("i - Scoring Methodology Tutorial")
+    with st.expander("i - Scoring Methodology Tutorial"):
         st.write("""Evaluate each competitor on pivotal variables that can change the competitive landscape—factors like innovation, customer engagement, and market expansion potential are just the beginning. This evaluation is more than just a scoring exercise; it's a strategic exploration into what makes a company stand out, compete, or even dominate.
 
 **Game-Changers, Creating Advantage, Being Challenged, and Qualifiers:**
