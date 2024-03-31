@@ -385,7 +385,7 @@ Please incorporate the PCA scores and k-means clustering results for each compet
     # Adding helper text about weighting variables
     st.markdown("""
     <div style="text-align: justify;">
-        <p><strong><b>###Solution Development Atlas Reflection Questions:</b></strong> 
+        <p><strong><b><h3>Solution Development Atlas Reflection Questions:</h3></b></strong> 
                 
 <b>Strategic Positioning:</b> How does your company's position on the map reflect your current competitive advantage? Are there variables where you lead, and how sustainable are these advantages?
 
