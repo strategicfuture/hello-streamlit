@@ -385,8 +385,6 @@ Please incorporate the PCA scores and k-means clustering results for each compet
                 """, unsafe_allow_html=True)  
     else:
         st.error("Please go back and perform clustering first.")
-    if 'conversation_history' not in st.session_state:
-        st.session_state.conversation_history = []
 
   # Subscription Call-to-Action
     st.markdown("### Download White Paper")
