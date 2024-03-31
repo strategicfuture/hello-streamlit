@@ -258,21 +258,6 @@ def score_variables():
     elif not all_scores_entered:
         st.warning('Please enter names for all competitors and variables.')
 
-     if all_scores_entered:
-        scores_df = apply_min_max_normalization(scores_df, st.session_state.variable_weights)
-        scaler = StandardScaler()
-        scaled_data = scaler.fit_transform(scores_df.fillna(0))
-        optimal_clusters = find_optimal_clusters(scaled_data)
-        kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
-        cluster_labels = kmeans.fit_predict(scaled_data)
-        
-        st.session_state.scaled_data = scaled_data
-        st.session_state.cluster_labels = cluster_labels
-        st.session_state.show_plot = True
-        st.session_state.scores_df = scores_df.to_dict('list')
-        st.session_state.pca_ready = True  # Set pca_ready flag here
-        st.session_state.current_screen = 'show_results'
-
 def show_results():
     # Using HTML to center the logo image
     st.markdown("""
@@ -360,16 +345,14 @@ def show_results():
         # Now, when getting pca_scores, ensure the 'Fallback Label' column is dropped
         pca_scores = scores_df_display.drop('Fallback Label', axis=1).apply(lambda row: row.to_dict(), axis=1).to_dict()
         
-        # Ensure necessary session state variables are initialized
+       # Ensure necessary session state variables are initialized
         if 'follow_up_count' not in st.session_state:
             st.session_state.follow_up_count = 0
         if 'conversation_history' not in st.session_state:
             st.session_state.conversation_history = []
 
-        # Check if all conditions for running the analysis are met (Example: Check if PCA analysis is ready)
-        if 'pca_ready' in st.session_state and st.session_state.pca_ready and st.session_state.follow_up_count == 0:
-            # Construct the initial prompt for the API with detailed competitor information
-            prompt_text = """I have conducted a Principal Component Analysis (PCA) and applied k-means clustering on a dataset representing the competitive landscape in our industry, focusing on various strategic metrics. This combined analysis provides PCA scores for each competitor across critical variables, illustrating their positioning along the principal components PC1 and PC2. It also segments competitors into clusters, offering insights into collective strategic stances within the market. Furthermore, we have visualized this analysis through a strategic map that features defensive barriers around clusters and offensive arrows indicating potential strategic directions.
+        # Construct the initial prompt for the API
+        prompt_text = """I have conducted a Principal Component Analysis (PCA) and applied k-means clustering on a dataset representing the competitive landscape in our industry, focusing on various strategic metrics. This combined analysis provides PCA scores for each competitor across critical variables, illustrating their positioning along the principal components PC1 and PC2. It also segments competitors into clusters, offering insights into collective strategic stances within the market. Furthermore, we have visualized this analysis through a strategic map that features defensive barriers around clusters and offensive arrows indicating potential strategic directions.
 Given this context, please provide a structured strategic analysis that explores the implications of individual PCA scores, the collective dynamics revealed by k-means clustering, and the strategic insights offered by the defensive barriers and offensive arrows.
 Please structure your analysis as follows and in the following order:
 1) Key Findings: Begin your analysis with key findings, focusing specifically on the strategic implications of the defensive barriers and offensive arrows as visualized on our strategic map. Please identify which clusters are encircled by defensive barriers and describe what these barriers signify in terms of market defense strategies and competitor cohesion. Similarly, detail the directions indicated by offensive arrows and explicitly name the strategic opportunities or market areas they point towards. This analysis should not only tie back to the PCA and clustering analysis but also provide specific examples of how these visual markers guide our understanding of the competitive landscape.
@@ -378,20 +361,20 @@ Please structure your analysis as follows and in the following order:
 4) About Methodology: Begin by explaining what the numbers in the PC1 and PC2 components in addition to the competitive scores mean. Provide overview of how PCA scores, particularly in relation to the dimensions PC1 and PC2, can suggest individual strategic positioning. Then, elaborate on how k-means clustering builds upon this by grouping competitors with similar strategic profiles, offering a view of collective competitive dynamics. Discuss the strategic significance of high, low, and negative PCA scores and the insights gained from clustering.
 Defensive barriers indicate the spread and cohesion within clusters, showing how competitors collectively defend their strategic positions. Offensive arrows suggest directions for strategic advancement or areas where competitors could potentially disrupt the current competitive equilibrium.
 Please incorporate the PCA scores and k-means clustering results for each competitor and cluster into your analysis, ensuring a comprehensive understanding of both individual and collective competitive strategies."""
-            for competitor_name, scores in st.session_state['pca_scores'].items():
-                prompt_text += f"\nCompetitor '{competitor_name}':\n"
-                for variable, score in scores.items():
-                    prompt_text += f"- {variable}: {score}\n"
-            prompt_text += "\nStart answer going right into the key findings, as if you were briefing a senior executive on the company's most pivotal business decisions."
 
-            # Automatically perform the analysis without waiting for a button click
+        # Append detailed competitor information to prompt_text
+        for competitor_name, scores in pca_scores.items():
+            prompt_text += f"\nCompetitor '{competitor_name}':\n"
+            for variable, score in scores.items():
+                prompt_text += f"- {variable}: {score}\n"
+        prompt_text += "\nStart answer going right into the key findings, as if you were briefing a senior executive on the company's most pivotal business decisions."
+
+        # Display the initial analysis and provide option for a follow-up question
+        if st.button('Interpret and Generate Analysis') and st.session_state.follow_up_count == 0:
             api_response_text = query_openai_api({'prompt': prompt_text})
             if not api_response_text.startswith("Error:"):
                 st.session_state.conversation_history.append({'prompt': "Initial Analysis", 'response': api_response_text})
                 st.session_state.follow_up_count += 1
-                # Display the initial analysis response
-                st.markdown(f"<div style='margin-bottom: 10px;'><b>Q:</b> Initial Analysis</div>", unsafe_allow_html=True)
-                st.markdown(f"<div style='background-color: #f0f0f0; padding: 10px; border-radius: 5px; margin-bottom: 20px;'><b>A:</b> {api_response_text}</div>", unsafe_allow_html=True)
             else:
                 st.error(api_response_text)
 
