@@ -153,7 +153,7 @@ def enter_market_share():
     st.header("Enter Market Share")
     # Helper text
     st.markdown("""
-        Reflect on the market share distribution, considering both current market dynamics and potential shifts. Market share can offer insights into a competitor's strength and customer reach.
+        Reflect on the market share distribution, considering both current market dynamics and potential shifts. Market share can offer insights into a competitor's strength and customer reach. Additionally, for emerging startups and potential entrants not currently in the industry, estimate their market share based on their growth trajectory and anticipated impact over the next 2 to 3 years. This forward-looking approach will help you better prepare for and respond to the evolving competitive landscape.
     """)
     for competitor in st.session_state.competitors:
         if competitor:
