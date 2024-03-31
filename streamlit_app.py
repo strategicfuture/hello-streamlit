@@ -370,7 +370,7 @@ Please incorporate the PCA scores and k-means clustering results for each compet
         prompt_text += "\nStart answer going right into the key findings, as if you were briefing a senior executive on the company's most pivotal business decisions."
 
         # Display the initial analysis and provide option for a follow-up question
-        if st.button('Interpret and Generate Analysis') and st.session_state.follow_up_count == 0:
+        if st.session_state.follow_up_count == 0:
             api_response_text = query_openai_api({'prompt': prompt_text})
             if not api_response_text.startswith("Error:"):
                 st.session_state.conversation_history.append({'prompt': "Initial Analysis", 'response': api_response_text})
