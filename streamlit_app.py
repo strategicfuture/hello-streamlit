@@ -258,20 +258,20 @@ def score_variables():
     elif not all_scores_entered:
         st.warning('Please enter names for all competitors and variables.')
 
-    if all_scores_entered:
-    scores_df = apply_min_max_normalization(scores_df, st.session_state.variable_weights)
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(scores_df.fillna(0))
-    optimal_clusters = find_optimal_clusters(scaled_data)
-    kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
-    cluster_labels = kmeans.fit_predict(scaled_data)
-    
-    st.session_state.scaled_data = scaled_data
-    st.session_state.cluster_labels = cluster_labels
-    st.session_state.show_plot = True
-    st.session_state.scores_df = scores_df.to_dict('list')
-    st.session_state.pca_ready = True  # Set pca_ready flag here
-    st.session_state.current_screen = 'show_results'
+     if all_scores_entered:
+        scores_df = apply_min_max_normalization(scores_df, st.session_state.variable_weights)
+        scaler = StandardScaler()
+        scaled_data = scaler.fit_transform(scores_df.fillna(0))
+        optimal_clusters = find_optimal_clusters(scaled_data)
+        kmeans = KMeans(n_clusters=optimal_clusters, init='k-means++', random_state=42)
+        cluster_labels = kmeans.fit_predict(scaled_data)
+        
+        st.session_state.scaled_data = scaled_data
+        st.session_state.cluster_labels = cluster_labels
+        st.session_state.show_plot = True
+        st.session_state.scores_df = scores_df.to_dict('list')
+        st.session_state.pca_ready = True  # Set pca_ready flag here
+        st.session_state.current_screen = 'show_results'
 
 def show_results():
     # Using HTML to center the logo image
