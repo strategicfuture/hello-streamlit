@@ -267,76 +267,73 @@ def show_results():
         st.write("Competitors by Cluster:")
         for cluster, competitors in cluster_competitors.items():
             st.write(f"**Cluster {cluster + 1}:** {', '.join(competitors)}")
-
-        plot_choice = st.radio("How would you like to choose axes for plotting?", ('Use PCA to determine axes automatically', 'Manually select variables for axes'))
         
         scaled_data = np.array(st.session_state.scaled_data)
         cluster_labels = np.array(st.session_state.cluster_labels)
         market_share = st.session_state.market_share
+
+        pca = PCA(n_components=2)
+        principal_components = pca.fit_transform(scaled_data)
+
+        fig, ax = plt.subplots()
+
+        # Plot each competitor
+        for i, competitor in enumerate(st.session_state.competitors):
+            size = st.session_state.market_share[competitor] * 100
+            ax.scatter(principal_components[i, 0], principal_components[i, 1], s=size, label=competitor)
+            ax.text(principal_components[i, 0], principal_components[i, 1], competitor, ha='right', va='bottom')
+
+        # Calculate cluster centers
+        cluster_centers = np.array([principal_components[st.session_state.cluster_labels == i].mean(axis=0) for i in np.unique(st.session_state.cluster_labels)])
         
-        if plot_choice == 'Use PCA to determine axes automatically':
-            pca = PCA(n_components=2)
-            principal_components = pca.fit_transform(scaled_data)
+        # Determine a dynamic radius for circles based on data spread within each cluster
+        for i, center in enumerate(cluster_centers):
+            cluster_points = principal_components[st.session_state.cluster_labels == i]
+            radius = np.sqrt(((cluster_points - center) ** 2).sum(axis=1).mean())  # RMS distance to center as radius
+            ax.add_patch(Circle(center, radius, color='red', fill=False, linestyle='--'))
 
-            fig, ax = plt.subplots()
+        # Add offensive arrows showing potential strategic directions
+        global_mean = principal_components.mean(axis=0)
+        for center in cluster_centers:
+            direction = global_mean - center
+            ax.annotate('', xy=center + direction * 0.5, xytext=center, arrowprops=dict(facecolor='green', shrink=0.05, width=1.5, headwidth=8))
 
-            # Plot each competitor
-            for i, competitor in enumerate(st.session_state.competitors):
-                size = st.session_state.market_share[competitor] * 100
-                ax.scatter(principal_components[i, 0], principal_components[i, 1], s=size, label=competitor)
-                ax.text(principal_components[i, 0], principal_components[i, 1], competitor, ha='right', va='bottom')
+        ax.set_xlabel('PC1')
+        ax.set_ylabel('PC2')
+        ax.set_title('Strategic Foresight PROACT Solution Development Atlas')
 
-            # Calculate cluster centers
-            cluster_centers = np.array([principal_components[st.session_state.cluster_labels == i].mean(axis=0) for i in np.unique(st.session_state.cluster_labels)])
-            
-            # Determine a dynamic radius for circles based on data spread within each cluster
-            for i, center in enumerate(cluster_centers):
-                cluster_points = principal_components[st.session_state.cluster_labels == i]
-                radius = np.sqrt(((cluster_points - center) ** 2).sum(axis=1).mean())  # RMS distance to center as radius
-                ax.add_patch(Circle(center, radius, color='red', fill=False, linestyle='--'))
+        st.pyplot(fig)
 
-            # Add offensive arrows showing potential strategic directions
-            global_mean = principal_components.mean(axis=0)
-            for center in cluster_centers:
-                direction = global_mean - center
-                ax.annotate('', xy=center + direction * 0.5, xytext=center, arrowprops=dict(facecolor='green', shrink=0.05, width=1.5, headwidth=8))
+        pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
+        st.write("PCA Components' Contributions to Variables:")
+        st.dataframe(pca_contributions.style.format("{:.2f}"))
 
-            ax.set_xlabel('PC1')
-            ax.set_ylabel('PC2')
-            ax.set_title('Strategic Foresight PROACT Solution Development Atlas')
+        # Assuming 'scores_df' has the competitors as rows and variables as columns with their scores
+        scores_df_display = pd.DataFrame(st.session_state['scores_df'], index=st.session_state.competitors, columns=st.session_state.variables)
 
-            st.pyplot(fig)
+        # Adding a fallback label column to scores_df_display for each competitor
+        fallback_labels = [f'Competitor {i}' for i in range(len(scores_df_display))]
+        scores_df_display['Fallback Label'] = fallback_labels
 
-            pca_contributions = pd.DataFrame(pca.components_, columns=st.session_state.variables, index=['PC1', 'PC2'])
-            st.write("PCA Components' Contributions to Variables:")
-            st.dataframe(pca_contributions.style.format("{:.2f}"))
+        # You might want to display the 'Fallback Label' column first
+        # So let's rearrange the columns to make 'Fallback Label' appear first
+        cols = ['Fallback Label'] + [col for col in scores_df_display if col != 'Fallback Label']
+        scores_df_display = scores_df_display[cols]
 
-            # Assuming 'scores_df' has the competitors as rows and variables as columns with their scores
-            scores_df_display = pd.DataFrame(st.session_state['scores_df'], index=st.session_state.competitors, columns=st.session_state.variables)
+        # Apply formatting only to numerical columns and exclude the 'Fallback Label'
+        # First, let's create a style function that applies formatting conditionally
+        def apply_style(df):
+            return df.style.format("{:.2f}", na_rep="N/A", subset=pd.IndexSlice[:, df.columns.difference(['Fallback Label'])])
 
-            # Adding a fallback label column to scores_df_display for each competitor
-            fallback_labels = [f'Competitor {i}' for i in range(len(scores_df_display))]
-            scores_df_display['Fallback Label'] = fallback_labels
+        # Use the apply_style function on the DataFrame before displaying it
+        st.write("Competitors' Scores for Each Variable:")
+        st.dataframe(apply_style(scores_df_display))
 
-            # You might want to display the 'Fallback Label' column first
-            # So let's rearrange the columns to make 'Fallback Label' appear first
-            cols = ['Fallback Label'] + [col for col in scores_df_display if col != 'Fallback Label']
-            scores_df_display = scores_df_display[cols]
-
-            # Apply formatting only to numerical columns and exclude the 'Fallback Label'
-            # First, let's create a style function that applies formatting conditionally
-            def apply_style(df):
-                return df.style.format("{:.2f}", na_rep="N/A", subset=pd.IndexSlice[:, df.columns.difference(['Fallback Label'])])
-
-            # Use the apply_style function on the DataFrame before displaying it
-            st.write("Competitors' Scores for Each Variable:")
-            st.dataframe(apply_style(scores_df_display))
-
-            # Now, when getting pca_scores, ensure the 'Fallback Label' column is dropped
-            pca_scores = scores_df_display.drop('Fallback Label', axis=1).apply(lambda row: row.to_dict(), axis=1).to_dict()
-            
-            # Construct the prompt for the API
-            prompt_text = f"""I have conducted a Principal Component Analysis (PCA) and applied k-means clustering on a dataset representing the competitive landscape in our industry, focusing on various strategic metrics. This combined analysis provides PCA scores for each competitor across critical variables, illustrating their positioning along the principal components PC1 and PC2. It also segments competitors into clusters, offering insights into collective strategic stances within the market. Furthermore, we have visualized this analysis through a strategic map that features defensive barriers around clusters and offensive arrows indicating potential strategic directions.
+        # Now, when getting pca_scores, ensure the 'Fallback Label' column is dropped
+        pca_scores = scores_df_display.drop('Fallback Label', axis=1).apply(lambda row: row.to_dict(), axis=1).to_dict()
+        
+        # Construct the prompt for the API
+        prompt_text = f"""I have conducted a Principal Component Analysis (PCA) and applied k-means clustering on a dataset representing the competitive landscape in our industry, focusing on various strategic metrics. This combined analysis provides PCA scores for each competitor across critical variables, illustrating their positioning along the principal components PC1 and PC2. It also segments competitors into clusters, offering insights into collective strategic stances within the market. Furthermore, we have visualized this analysis through a strategic map that features defensive barriers around clusters and offensive arrows indicating potential strategic directions.
 Given this context, please provide a structured strategic analysis that explores the implications of individual PCA scores, the collective dynamics revealed by k-means clustering, and the strategic insights offered by the defensive barriers and offensive arrows.
 Please structure your analysis as follows and in the following order:
 1) Key Findings: Begin your analysis with key findings, focusing specifically on the strategic implications of the defensive barriers and offensive arrows as visualized on our strategic map. Please identify which clusters are encircled by defensive barriers and describe what these barriers signify in terms of market defense strategies and competitor cohesion. Similarly, detail the directions indicated by offensive arrows and explicitly name the strategic opportunities or market areas they point towards. This analysis should not only tie back to the PCA and clustering analysis but also provide specific examples of how these visual markers guide our understanding of the competitive landscape.
@@ -346,37 +343,19 @@ Please structure your analysis as follows and in the following order:
 Defensive barriers indicate the spread and cohesion within clusters, showing how competitors collectively defend their strategic positions. Offensive arrows suggest directions for strategic advancement or areas where competitors could potentially disrupt the current competitive equilibrium.
 Please incorporate the PCA scores and k-means clustering results for each competitor and cluster into your analysis, ensuring a comprehensive understanding of both individual and collective competitive strategies.   
 """
-            for competitor_name, scores in pca_scores.items():
-                prompt_text += f"\nCompetitor '{competitor_name}':\n"
-                for variable, score in scores.items():
-                    prompt_text += f"- {variable}: {score}\n"
-                
-            prompt_text += "\nStart answer going right into the key findings, as if you were briefing a senior executive on the company's most pivotal business decisions."
+        for competitor_name, scores in pca_scores.items():
+            prompt_text += f"\nCompetitor '{competitor_name}':\n"
+            for variable, score in scores.items():
+                prompt_text += f"- {variable}: {score}\n"
+            
+        prompt_text += "\nStart answer going right into the key findings, as if you were briefing a senior executive on the company's most pivotal business decisions."
 
-            # Query the OpenAI API and display the result
-            if st.button('Interpret and Generate Analysis'):
-                api_response_text = query_openai_api({'prompt': prompt_text})
-                if not api_response_text.startswith("Error:"):st.text_area("Response:", value=api_response_text, height=300, help="Solution Development Atlas")
-                else:
-                    st.error(api_response_text)  # Show the error message
-
-        elif plot_choice == 'Manually select variables for axes':
-            try:
-                variable_options = st.session_state.variables
-                x_var = st.selectbox('Select variable for X-axis:', options=variable_options)
-                y_var = st.selectbox('Select variable for Y-axis:', options=variable_options, index=1 if len(variable_options) > 1 else 0)
-                fig, ax = plt.subplots()
-                for competitor in st.session_state.competitors:
-                    x_score = scores_df.loc[competitor, x_var]
-                    y_score = scores_df.loc[competitor, y_var]
-                    market_size = market_share[competitor] * 100
-                    ax.scatter(x_score, y_score, s=market_size, label=competitor)
-                    ax.annotate(competitor, (x_score, y_score))
-                st.pyplot(fig)
-            except KeyError as e:
-                st.error(f"An error occurred due to too much convergence among the selected axes or missing data: {e}. Please reconsider the variables chosen for axes or ensure all competitors and variables have been scored.")
-            except Exception as e:
-                st.error(f"An unexpected error occurred: {e}. Please check your data and selections.")
+        # Query the OpenAI API and display the result
+        if st.button('Interpret and Generate Analysis'):
+            api_response_text = query_openai_api({'prompt': prompt_text})
+            if not api_response_text.startswith("Error:"):st.text_area("Response:", value=api_response_text, height=300, help="Solution Development Atlas")
+            else:
+                st.error(api_response_text)  # Show the error message
     else:
         st.error("Please go back and perform clustering first.")
 
