@@ -349,12 +349,40 @@ Please incorporate the PCA scores and k-means clustering results for each compet
             
         prompt_text += "\nStart answer going right into the key findings, as if you were briefing a senior executive on the company's most pivotal business decisions."
 
-        # Query the OpenAI API and display the result
-        if st.button('Interpret and Generate Analysis'):
+        # Initialize necessary session state variables if they're not already present
+        if 'follow_up_count' not in st.session_state:
+            st.session_state.follow_up_count = 0
+        if 'conversation_history' not in st.session_state:
+            st.session_state.conversation_history = []
+
+        # Construct and display the initial analysis
+        if st.button('Interpret and Generate Analysis') and st.session_state.follow_up_count == 0:
             api_response_text = query_openai_api({'prompt': prompt_text})
-            if not api_response_text.startswith("Error:"):st.text_area("Response:", value=api_response_text, height=300, help="Solution Development Atlas")
+            if not api_response_text.startswith("Error:"):
+                st.text_area("Response:", value=api_response_text, height=300, help="Solution Development Atlas")
+                st.session_state.conversation_history.append({'prompt': prompt_text, 'response': api_response_text})
             else:
-                st.error(api_response_text)  # Show the error message
+                st.error(api_response_text)
+
+        # Handle a follow-up question if the initial analysis has been made
+        if st.session_state.follow_up_count < 1 and len(st.session_state.conversation_history) > 0:
+            follow_up_question = st.text_input("Have a follow-up question? Ask here:")
+            if st.button('Ask Follow-Up Question'):
+                new_prompt = "\n".join([conv['prompt'] + "\n" + conv['response'] for conv in st.session_state.conversation_history]) + "\n" + follow_up_question
+                follow_up_response = query_openai_api({'prompt': new_prompt})
+                if not follow_up_response.startswith("Error:"):
+                    st.text_area("Follow-Up Response:", value=follow_up_response, height=300, help="Follow-up Analysis")
+                    st.session_state.conversation_history.append({'prompt': follow_up_question, 'response': follow_up_response})
+                    st.session_state.follow_up_count += 1  # Increment the follow-up count
+                else:
+                    st.error(follow_up_response)
+        else:
+            # After one follow-up question, provide a message to contact for further information
+            if len(st.session_state.conversation_history) > 0 and st.session_state.follow_up_count >= 1:
+                st.markdown("""
+                Thank you for your engagement! For more questions or to continue the conversation,
+                please [contact us] at solutions@strategicforesight.ai
+                """, unsafe_allow_html=True)  
     else:
         st.error("Please go back and perform clustering first.")
 
