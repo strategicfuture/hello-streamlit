@@ -231,7 +231,8 @@ def score_variables():
     </div>
 """, unsafe_allow_html=True)
 
-if 'scores' not in st.session_state:
+# Initialize a dictionary in the session state to store scores if it doesn't already exist
+    if 'scores' not in st.session_state:
         st.session_state.scores = {}
     
     # Iterate through competitors and variables to display sliders
@@ -257,7 +258,6 @@ if 'scores' not in st.session_state:
             for variable in st.session_state.variables:
                 score_key = f'score_{competitor}_{variable}'
                 scores_df.at[competitor, variable] = st.session_state.scores.get(score_key, 0.5)
-        
 
     if all_scores_entered and st.button('Score and Analyze'):
         scores_df = apply_min_max_normalization(scores_df, st.session_state.variable_weights)
