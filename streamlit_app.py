@@ -231,16 +231,33 @@ def score_variables():
     </div>
 """, unsafe_allow_html=True)
 
-    scores_df = pd.DataFrame(index=st.session_state.competitors, columns=st.session_state.variables)
-    all_scores_entered = True
+if 'scores' not in st.session_state:
+        st.session_state.scores = {}
+    
+    # Iterate through competitors and variables to display sliders
     for competitor in st.session_state.competitors:
         for variable in st.session_state.variables:
-            if competitor and variable:
-                score_key = f'{competitor}_{variable}'
-                score = st.slider(f'Rate {competitor} for {variable}:', 0.0, 1.0, 0.5, key=score_key)
-                scores_df.at[competitor, variable] = score
-            else:
-                all_scores_entered = False
+            # Generate a unique key for each score
+            score_key = f'score_{competitor}_{variable}'
+            # Retrieve the current score from the session state, defaulting to 0.5 if it doesn't exist
+            current_score = st.session_state.scores.get(score_key, 0.5)
+            
+            # Create a slider for the score
+            new_score = st.slider(f'Rate {competitor} for {variable}:', min_value=0.0, max_value=1.0, value=current_score, key=score_key)
+            
+            # Update the score in the session state
+            st.session_state.scores[score_key] = new_score
+
+    # When ready to analyze, you can reconstruct scores_df from the session state
+    if st.button('Score and Analyze') and all_scores_entered:
+        # Initialize an empty DataFrame
+        scores_df = pd.DataFrame(index=st.session_state.competitors, columns=st.session_state.variables)
+        # Populate the DataFrame with scores from the session state
+        for competitor in st.session_state.competitors:
+            for variable in st.session_state.variables:
+                score_key = f'score_{competitor}_{variable}'
+                scores_df.at[competitor, variable] = st.session_state.scores.get(score_key, 0.5)
+        
 
     if all_scores_entered and st.button('Score and Analyze'):
         scores_df = apply_min_max_normalization(scores_df, st.session_state.variable_weights)
@@ -272,7 +289,6 @@ def score_variables():
         st.session_state.scores_df = scores_df.to_dict('list')
         st.session_state.pca_ready = True  # Set pca_ready flag here
         st.session_state.current_screen = 'show_results'
-
 
 def show_results():
     # Using HTML to center the logo image
