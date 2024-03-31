@@ -9,6 +9,20 @@ from matplotlib.patches import Circle, FancyBboxPatch  # For defensive barriers
 import requests
 import json
 
+st.markdown("""
+    <style>
+    /* Target the text area widgets */
+    .stTextArea>div>div>textarea {
+        opacity: 1 !important; /* Make text area fully opaque */
+        cursor: text !important; /* Change cursor to text selection */
+    }
+    /* Optional: Adjust the hover state as well */
+    .stTextArea>div>div>textarea:hover {
+        background-color: #f2f2f2; /* Light grey background on hover, adjust as needed */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Initialize session state variables if not already present
 if 'competitors' not in st.session_state:
     st.session_state.competitors = []
