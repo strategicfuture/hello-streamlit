@@ -401,66 +401,6 @@ Please incorporate the PCA scores and k-means clustering results for each compet
             please [contact us](mailto:solutions@strategicforesight.ai).
             """, unsafe_allow_html=True)
 
-
-
-        # Ensure necessary session state variables are initialized
-        if 'follow_up_count' not in st.session_state:
-            st.session_state.follow_up_count = 0
-        if 'conversation_history' not in st.session_state:
-            st.session_state.conversation_history = []
-
-        # Construct the initial prompt for the API
-        prompt_text = """I have conducted a Principal Component Analysis (PCA) and applied k-means clustering on a dataset representing the competitive landscape in our industry, focusing on various strategic metrics. This combined analysis provides PCA scores for each competitor across critical variables, illustrating their positioning along the principal components PC1 and PC2. It also segments competitors into clusters, offering insights into collective strategic stances within the market. Furthermore, we have visualized this analysis through a strategic map that features defensive barriers around clusters and offensive arrows indicating potential strategic directions.
-Given this context, please provide a structured strategic analysis that explores the implications of individual PCA scores, the collective dynamics revealed by k-means clustering, and the strategic insights offered by the defensive barriers and offensive arrows.
-Please structure your analysis as follows and in the following order:
-1) Key Findings: Begin your analysis with key findings, focusing specifically on the strategic implications of the defensive barriers and offensive arrows as visualized on our strategic map. Please identify which clusters are encircled by defensive barriers and describe what these barriers signify in terms of market defense strategies and competitor cohesion. Similarly, detail the directions indicated by offensive arrows and explicitly name the strategic opportunities or market areas they point towards. This analysis should not only tie back to the PCA and clustering analysis but also provide specific examples of how these visual markers guide our understanding of the competitive landscape.
-2) Competitive Analysis: Delve into the combined insights from PCA scores and k-means clustering for each competitor and cluster. For individual competitors, highlight the strategic implications of their scores on PC1 and PC2. For clusters, discuss the common strategic themes or market positions that emerge, and how these groupings reflect broader competitive dynamics. Please refer to competitors by their actual names and not by numbers.It is important that your reply includes competitors names and not competitor 0, competitor 1, etc. 
-3) Strategic Recommendations: Conclude with strategic considerations and recommendations informed by the PCA scores, clustering results, and strategic map analysis. Offer insights into potential strategic moves, areas for innovation or differentiation, and considerations for positioning against clusters of competitors.
-4) About Methodology: Begin by explaining what the numbers in the PC1 and PC2 components in addition to the competitive scores mean. Provide overview of how PCA scores, particularly in relation to the dimensions PC1 and PC2, can suggest individual strategic positioning. Then, elaborate on how k-means clustering builds upon this by grouping competitors with similar strategic profiles, offering a view of collective competitive dynamics. Discuss the strategic significance of high, low, and negative PCA scores and the insights gained from clustering.
-Defensive barriers indicate the spread and cohesion within clusters, showing how competitors collectively defend their strategic positions. Offensive arrows suggest directions for strategic advancement or areas where competitors could potentially disrupt the current competitive equilibrium.
-Please incorporate the PCA scores and k-means clustering results for each competitor and cluster into your analysis, ensuring a comprehensive understanding of both individual and collective competitive strategies.
-        """
-        # Append detailed competitor information to prompt_text
-        for competitor_name, scores in pca_scores.items():
-            prompt_text += f"\nCompetitor '{competitor_name}':\n"
-            for variable, score in scores.items():
-                prompt_text += f"- {variable}: {score}\n"
-        prompt_text += "\nStart answer going right into the key findings, as if you were briefing a senior executive on the company's most pivotal business decisions."
-
-        # Display the initial analysis and provide option for a follow-up question
-        if st.button('Interpret and Generate Analysis') and st.session_state.follow_up_count == 0:
-            api_response_text = query_openai_api({'prompt': prompt_text})
-            if not api_response_text.startswith("Error:"):
-                st.session_state.conversation_history.append({'prompt': "Initial Analysis", 'response': api_response_text})
-                st.session_state.follow_up_count += 1  # Ensure follow-up count is incremented to allow only one follow-up question
-            else:
-                st.error(api_response_text)
-
-        # Display the conversation history
-        for conv in st.session_state.conversation_history:
-            st.text_area(label="Q:", value=conv['prompt'], height=75, disabled=True)
-            st.text_area(label="A:", value=conv['response'], height=300, disabled=True)
-
-        # Follow-up question logic
-        if st.session_state.follow_up_count == 1:  # Allow for one follow-up question
-            follow_up_question = st.text_input("Have a follow-up question? Ask here:")
-            if st.button('Ask Follow-Up Question'):
-                new_prompt = "\n".join([conv['prompt'] + "\n" + conv['response'] for conv in st.session_state.conversation_history]) + "\n" + follow_up_question
-                follow_up_response = query_openai_api({'prompt': new_prompt})
-                if not follow_up_response.startswith("Error:"):
-                    st.session_state.conversation_history.append({'prompt': follow_up_question, 'response': follow_up_response})
-                    st.session_state.follow_up_count += 1  # Update follow-up count to prevent more questions
-                else:
-                    st.error(follow_up_response)
-        elif st.session_state.follow_up_count > 1:
-            # Display a message for further contact after one follow-up question
-            st.markdown("""
-            Thank you for your engagement! For more questions or to continue the conversation,
-            please [contact us](mailto:solutions@strategicforesight.ai).
-            """, unsafe_allow_html=True)
-    else:
-        st.error("Please go back and perform clustering first.")
-
   # Subscription Call-to-Action
     st.markdown("### Download White Paper")
     st.markdown("10X Market Impact in 10 Hours with World-Class Foresight")
