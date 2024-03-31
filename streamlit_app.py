@@ -367,7 +367,7 @@ Please incorporate the PCA scores and k-means clustering results for each compet
     st.markdown(f"[Download Now]({subscription_url})", unsafe_allow_html=True)
 
     # Optionally, offer more context or a teaser of what they'll learn
-    st.markdown("###This white paper will equip you with our 4 move advantage to:")
+    st.markdown("This white paper will equip you with our 4 move advantage to:")
     st.markdown("""
     - Outmaneuever competitors
     - Outperform markets
