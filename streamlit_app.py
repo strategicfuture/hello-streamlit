@@ -329,7 +329,7 @@ def show_results():
                 return df.style.format("{:.2f}", na_rep="N/A", subset=pd.IndexSlice[:, df.columns.difference(['Fallback Label'])])
 
             # Use the apply_style function on the DataFrame before displaying it
-            st.write("Competitors' Scores for Each Variable, including Fallback Labels:")
+            st.write("Competitors' Scores for Each Variable:")
             st.dataframe(apply_style(scores_df_display))
 
             # Now, when getting pca_scores, ensure the 'Fallback Label' column is dropped
@@ -354,9 +354,9 @@ Please incorporate the PCA scores and k-means clustering results for each compet
             prompt_text += "\nStart answer going right into the key findings, as if you were briefing a senior executive on the company's most pivotal business decisions."
 
             # Query the OpenAI API and display the result
-            if st.button('Interpret PCA Results'):
+            if st.button('Interpret and Generate Analysis'):
                 api_response_text = query_openai_api({'prompt': prompt_text})
-                if not api_response_text.startswith("Error:"):st.text_area("Response:", value=api_response_text, height=300, help="PCA Analysis Interpretation")
+                if not api_response_text.startswith("Error:"):st.text_area("Response:", value=api_response_text, height=300, help="Solution Development Atlas")
                 else:
                     st.error(api_response_text)  # Show the error message
 
@@ -406,7 +406,7 @@ Please incorporate the PCA scores and k-means clustering results for each compet
     # Adding helper text about weighting variables
     st.markdown("""
     <div style="text-align: justify;">
-        <p><strong><b>Reflection Questions:</b></strong> 
+        <p><strong><b>Solution Development Atlas Reflection Questions:</b></strong> 
                 
 <b>Strategic Positioning:</b> How does your company's position on the map reflect your current competitive advantage? Are there variables where you lead, and how sustainable are these advantages?
 
