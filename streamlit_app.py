@@ -242,7 +242,7 @@ def score_variables():
             else:
                 all_scores_entered = False
 
-    if all_scores_entered and st.button('Score and Analyze'):
+    if all_scores_entered and st.button('Launch ML & AI Analysis'):
         scores_df = apply_min_max_normalization(scores_df, st.session_state.variable_weights)
         scaler = StandardScaler()
         scaled_data = scaler.fit_transform(scores_df.fillna(0))
