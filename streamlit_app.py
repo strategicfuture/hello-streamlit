@@ -406,7 +406,7 @@ Please incorporate the PCA scores and k-means clustering results for each compet
     st.markdown("10X Market Impact in 10 Hours with World-Class Foresight")
     
     # Provide the URL to the subscription page
-    subscription_url = "https://mailchi.mp/strategicforesight/growth-solutions"
+    subscription_url = "https://strategicforesight.ai/10x-impact/"
     st.markdown(f"[Download Now]({subscription_url})", unsafe_allow_html=True)
 
     # Optionally, offer more context or a teaser of what they'll learn
